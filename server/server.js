@@ -69,6 +69,20 @@ function onPlayerLogin(socket) {
         y_rot: 0,
         animation: "idle"
     });
+    // spawn exisitng players for the new player
+    // iterate over players
+    for (let id in players) {
+        if (id != socket.id) {
+            socket.emit("spawnPlayer", {
+                id: id,
+                x: players[id].x,
+                y: players[id].y,
+                y_rot: players[id].y_rot,
+                animation: players[id].animation
+            });
+        }
+    }
+    
 }
 
 function onPlayerLogout(socket) {

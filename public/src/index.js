@@ -80,11 +80,11 @@ function initProgram() {
         out vec3 vEyeVector;
 
         void main() {
-            mat4 mv = uModelViewMatrixl// * uViewMatrix;
+            mat4 mv = uModelViewMatrix;// * uViewMatrix;
             vec4 P = mv * aPosition;
 
             vNormalVector = mat3(mv) * aNormal;
-            vec4 lightPos = uViewMatrix * light;
+            vec4 lightPos = light;//uViewMatrix * light;
             vLightVector = lightPos.w == 1.0 ? P.xyz - lightPos.xyz : lightPos.xyz;
             vEyeVector = -P.xyz;
 
