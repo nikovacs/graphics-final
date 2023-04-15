@@ -7,7 +7,7 @@ socket.on('connect', function () {
     console.log('Connected to server');
 });
 
-socket.on("spawn=Player", (msg) => {
+socket.on("spawnPlayer", (msg) => {
     console.log(`Spawning player ${msg.id}`)
     players[msg.id] = {
         x: msg.x,
