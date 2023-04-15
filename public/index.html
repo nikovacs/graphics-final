@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <!-- Give the page a title - make sure it is descriptive! -->
+        <title>Final Project: Moravian</title>
+
+        <!-- Load utilities and functions -->
+        <script src="../common/utilities.js"></script>
+        <script src="../common/gl-matrix.js"></script>
+        <script src="../tools.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="../sockets.js"></script>
+        <script src="../index.js"></script>
+        <script src="../controls.js"></script>
+
+        <style>
+            /* make the webgl canvas fit the entire screen */
+            canvas {
+                width: 100%;
+                height: 100%;
+            }
+            /* Remove any margins */
+            body {
+                margin: 0;
+            }
+            /* remove scroll bar */
+            html {
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Define the canvas to use for the WebGL example -->
+        <canvas id="webgl-canvas" width="400" height="400">
+            Your browser doesn't support the HTML5 canvas element.
+        </canvas>
+    </body>
+</html>
