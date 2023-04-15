@@ -2,6 +2,7 @@
 ## Virtual Moravian University Campus
 ### Authors: Nikolas Kovacs, Jackson Wagner
 <br>
+
 #### Development
 *Requires Node.js*
     1. Clone: `git clone https://github.com/nikovacs/graphics-final.git`
