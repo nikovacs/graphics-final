@@ -1,4 +1,4 @@
-let socket = io();
+const socket = io();
 
 // store other players
 let players = {};
