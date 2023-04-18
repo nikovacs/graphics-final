@@ -35,7 +35,10 @@ window.addEventListener('load', function init() {
 
     // Configure WebGL
     gl.viewport(0, 0, canvas.width, canvas.height); // this is the region of the canvas we want to draw on (all of it)
-    gl.clearColor(0, 1, 0, 1); // setup the background color with red, green, blue, and alpha
+    gl.clearColor(0.2, 0.2, 0.2, 1); // setup the background color with red, green, blue, and alpha
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    // gl.cullFace(gl.BACK);
 
     // Initialize the WebGL program and data
     gl.program = initProgram();
@@ -43,8 +46,12 @@ window.addEventListener('load', function init() {
     initEvents();
 
     // Set initial values of uniforms
-    let view = glMatrix.mat4.fromTranslation(glMatrix.mat4.create(), [0, 0, -5]);
-    gl.uniformMatrix4fv(gl.program.uViewMatrix, false, view);
+    updateProjectionMatrix();
+    let mv = mat4.create();
+    mat4.rotateX(mv, mv, -Math.PI / 2);
+    mat4.translate(mv, mv, [0, 0.5, 0])
+    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
+
 
     // Render the static scene
     onWindowResize();
@@ -145,16 +152,64 @@ function initProgram() {
     program.aNormal = gl.getAttribLocation(program, 'aNormal');
 
     // Get the uniform indices
-    program.uViewMatrix = gl.getUniformLocation(program, 'uViewMatrix');
-    program.uModelMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
+    program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
     program.uProjectionMatrix = gl.getUniformLocation(program, 'uProjectionMatrix');
     program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
-
 
     return program;
 }
 
 function initBuffers() {
+    gl.models = [];
+
+    let terrainVao = gl.createVertexArray();
+    gl.bindVertexArray(terrainVao);
+
+    let terrainData = generate_terrain(1, 0);
+    let [terrainCoords, terrainInds] = generate_mesh(terrainData);
+
+    // Create a buffer for the terrain's vertex positions
+    let buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, terrainCoords, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(gl.program.aPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(gl.program.aPosition);
+
+    // Create a buffer for the terrain's vertex indices
+    buf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, terrainInds, gl.STATIC_DRAW);
+
+    // Create a buffer for the terrain's vertex normals
+    buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, calc_normals(terrainCoords, terrainInds), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(gl.program.aNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(gl.program.aNormal);
+
+    gl.bindVertexArray(null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    // let terrainVao = createVao( // WHY DOESNT THIS WORK?
+    //     gl, 
+    //     [
+    //         [gl.program.aPosition, terrainCoords, 3],
+    //         [gl.program.aNormal, calc_normals(terrainCoords, terrainInds), 3]
+    //     ],
+    //     terrainInds
+    // );
+
+    gl.models.push(
+        {
+            vao: terrainVao,
+            drawMode: gl.TRIANGLE_STRIP,
+            numElements: terrainInds.length,
+            materialColor: [0, 1, 0, 1],
+        }
+    )
+
+    
 }
 
 function initEvents() {
@@ -166,14 +221,26 @@ function initEvents() {
  */
 function updateProjectionMatrix() {
     let aspect = gl.canvas.width / gl.canvas.height;
-    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, 10);
+    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, null);
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // render the scene here
+    // render the terrain
+    // gl.bindVertexArray(gl.terrainVao);
+    // gl.uniform4fv(gl.program.uMaterialColor, [1, 0, 0, 1.0]);
+    // gl.drawElements(gl.TRIANGLE_STRIP, gl.terrainInds.length, gl.UNSIGNED_SHORT, 0);
+    // gl.bindVertexArray(null);
+
+    for (let model of gl.models) {
+        gl.bindVertexArray(model.vao);
+        gl.uniform4fv(gl.program.uMaterialColor, model.materialColor);
+        gl.drawElements(model.drawMode, model.numElements, gl.UNSIGNED_SHORT, 0);
+        gl.bindVertexArray(null);
+    }
+
 
     window.requestAnimationFrame(render);
 }
