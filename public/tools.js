@@ -158,3 +158,46 @@ function calc_normals(coords, indices, is_tri_strip) {
     // Return the computed normals
     return normals;
 }
+
+/**
+ * Convert OBJ data (as a single string) to a dictionary containing the
+ * "vertices" and "indices" as two lists. This only uses the vertex and face
+ * data, ignoring all normals, texture coordinates, materials and everything
+ * else. Vertices must be 3D and faces must be triangles.
+ */
+function obj2dict(obj_text) {
+    let vertices = [];
+    let indices = [];
+    let normals = [];
+    for (let line of obj_text.split('\n')) {
+        // remove comments and break up on whitespace
+        let data = line.split('#', 1)[0].trim().split(/\s+/);
+        // skip empty lines
+        if (data.length === 0) { continue }
+        if (data[0] === 'v') {
+            // vertex line
+            if (data.length !== 4)
+                throw `All vertices must be 3D, vertex ${vertices.length/3} is ${data.length-1}D`;
+            vertices.push(...data.slice(1).map(x => +x));
+        } else if (data[0] === 'f') {
+            // face line
+            if (data.length !== 4)
+                throw `All faces must be triangles, face ${indices.length/3} has ${data.length-1} vertices`;
+            indices.push(...data.slice(1).map(x => parseInt(x.split('/', 1)[0])-1));
+        } else if (data[0] === 'vn') {
+            // normals
+            if (data.length !== 4)
+                throw `All normals must be 3D, normal ${normals.length/3} is ${data.length-1}D`;
+            normals.push(...data.slice(1).map(x => +x));
+        } else if (data[0] === 'vt') {
+            // texture coordinates
+        } else if (data[0] === "usemtl") {
+            // mtl - corresponding material and texture
+        } else {
+            // all other lines are ignored
+            console.debug('ignoring', line);
+        }
+    }
+    // return the results
+    return {"vertices": vertices, "indices": indices, "normals": normals};
+}
