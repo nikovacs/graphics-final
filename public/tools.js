@@ -25,8 +25,8 @@ function createVao(gl, attributes, indices) {
 
     // Load the data into the GPU and associate with shader
 	for (let [attribute, data, count] of attributes) {
-		if (data.constructor !== Float64Array) {
-			data = Float64Array.from(data);
+		if (data.constructor !== Float32Array) {
+			data = Float32Array.from(data);
 		}
 		buf = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
