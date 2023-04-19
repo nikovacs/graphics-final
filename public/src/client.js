@@ -162,35 +162,6 @@ function initProgram() {
 function initBuffers() {
     gl.models = [];
 
-    let terrainVao = gl.createVertexArray();
-    gl.bindVertexArray(terrainVao);
-
-    let terrainData = generate_terrain(1, 0);
-    let [terrainCoords, terrainInds] = generate_mesh(terrainData);
-
-    // Create a buffer for the terrain's vertex positions
-    let buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, terrainCoords, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(gl.program.aPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(gl.program.aPosition);
-
-    // Create a buffer for the terrain's vertex indices
-    buf = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, terrainInds, gl.STATIC_DRAW);
-
-    // Create a buffer for the terrain's vertex normals
-    buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, calc_normals(terrainCoords, terrainInds), gl.STATIC_DRAW);
-    gl.vertexAttribPointer(gl.program.aNormal, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(gl.program.aNormal);
-
-    gl.bindVertexArray(null);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
     // let terrainVao = createVao( // WHY DOESNT THIS WORK?
     //     gl, 
     //     [
@@ -227,12 +198,6 @@ function updateProjectionMatrix() {
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    // render the terrain
-    // gl.bindVertexArray(gl.terrainVao);
-    // gl.uniform4fv(gl.program.uMaterialColor, [1, 0, 0, 1.0]);
-    // gl.drawElements(gl.TRIANGLE_STRIP, gl.terrainInds.length, gl.UNSIGNED_SHORT, 0);
-    // gl.bindVertexArray(null);
 
     for (let model of gl.models) {
         gl.bindVertexArray(model.vao);
