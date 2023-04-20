@@ -48,8 +48,8 @@ window.addEventListener('load', function init() {
     // Set initial values of uniforms
     updateProjectionMatrix();
     let mv = mat4.create();
-    // mat4.rotateX(mv, mv, -Math.PI / 2);
-    mat4.translate(mv, mv, [0, 0, -15])
+    mat4.rotateX(mv, mv, Math.PI / 2);
+    mat4.translate(mv, mv, [5, -15, 0])
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
     gl.uniform1i(gl.program.uTexture, 0);
 
@@ -76,7 +76,7 @@ function initProgram() {
         uniform mat4 uProjectionMatrix;
 
         // Light Position
-        const vec4 light = vec4(0, -1, 0, 0);
+        const vec4 light = vec4(0, 1, 0, 0);
 
         // Attributes for the vertex (from VBOs)
         in vec4 aPosition;
@@ -113,10 +113,10 @@ function initProgram() {
         // Light and material properties
         const vec3 lightColor = vec3(1, 1, 1);
         uniform vec4 uMaterialColor;
-        const float materialAmbient = 0.2;
-        const float materialDiffuse = 0.5;
-        const float materialSpecular = 0.3;
-        const float materialShininess = 10.0;
+        const float materialAmbient = 1.0;
+        const float materialDiffuse = 0.0;
+        const float materialSpecular = 0.0;
+        const float materialShininess = 0.0;
 
         // Vectors (varying variables from vertex shader)
         in vec3 vNormalVector;
