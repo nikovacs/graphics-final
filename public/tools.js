@@ -170,9 +170,17 @@ function loadModel(filename) {
             let inds = new Uint16Array(raw_model.indices);
             let texCoords = new Float32Array(raw_model.texels);
             let normals = calc_normals(coords, inds, false);
+            let vao = createVao(
+                gl,
+                [
+                    [gl.program.aPosition, coords, 3],
+                    [gl.program.aNormal, normals, 3],
+                    [gl.program.aTexCoord, texCoords, 2]
+                ]
+            )
 
-            return [coords, inds, normals, texCoords, raw_model.texture]
-
+            return [vao, raw_model.texture]
+            
         })
         // eslint-disable-next-line no-console
         .catch(console.error);

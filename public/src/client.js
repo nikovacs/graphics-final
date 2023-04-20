@@ -162,25 +162,21 @@ function initProgram() {
 function initBuffers() {
     gl.models = [];
 
-    // let terrainVao = createVao( // WHY DOESNT THIS WORK?
-    //     gl, 
-    //     [
-    //         [gl.program.aPosition, terrainCoords, 3],
-    //         [gl.program.aNormal, calc_normals(terrainCoords, terrainInds), 3]
-    //     ],
-    //     terrainInds
-    // );
+    for (let i = 0; i <= 243; i++) {
+        gl.models.push(`moraviancampusnonormals_${i}.json`);
+    }
 
-    gl.models.push(
-        {
-            vao: terrainVao,
-            drawMode: gl.TRIANGLE_STRIP,
-            numElements: terrainInds.length,
-            materialColor: [0, 1, 0, 1],
+    Promise.all(
+        gl.models.map((model) => {
+            let [vao, textureFile] = loadModel(model);
+            let img = new Image();
+            img.src = textureFile;
+            img.addEventListener('load', () => { // definitely does not work, fix tomorrow
+                return [vao, img];
+            });
         }
-    )
+    ))
 
-    
 }
 
 function initEvents() {
