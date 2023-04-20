@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <title>Convert OBJ to JSON</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+        <script>
+/**
+ * Convert OBJ data (as a single string) to a dictionary containing the
+ * "vertices" and "indices" as two lists. This only uses the vertex and face
+ * data, ignoring all normals, texture coordinates, materials and everything
+ * else. Vertices must be 3D and faces must be triangles.
+ */
+function obj2dict(obj_text) {
+    let vertices = [];
+    let indices = [];
+    let normals = [];
+    for (let line of obj_text.split('\n')) {
+        // remove comments and break up on whitespace
+        let data = line.split('#', 1)[0].trim().split(/\s+/);
+        // skip empty lines
+        if (data.length === 0) { continue }
+        if (data[0] === 'v') {
+            // vertex line
+            if (data.length !== 4)
+                throw `All vertices must be 3D, vertex ${vertices.length/3} is ${data.length-1}D`;
+            vertices.push(...data.slice(1).map(x => +x));
+        } else if (data[0] === 'f') {
+            // face line
+            if (data.length !== 4)
+                throw `All faces must be triangles, face ${indices.length/3} has ${data.length-1} vertices`;
+            indices.push(...data.slice(1).map(x => parseInt(x.split('/', 1)[0])-1));
+        } else if (data[0] === 'vn') {
+            // normals
+            if (data.length !== 4)
+                throw `All normals must be 3D, normal ${normals.length/3} is ${data.length-1}D`;
+            normals.push(...data.slice(1).map(x => +x));
+        } else if (data[0] === 'vt') {
+            // texture coordinates
+        } else if (data[0] === "usemtl") {
+            // mtl - corresponding material and texture
+        } else {
+            // all other lines are ignored
+            console.debug('ignoring', line);
+        }
+    }
+    // return the results
+    return {"vertices": vertices, "indices": indices};
+}
+
+
+/**
+ * Converts the contents of an obj file to a dictionary
+ * containing the "vertices," "indices," and "texels"
+ * and "normals" as lists. This is a generator and will
+ * continue to yield new objects until the end of the file.
+ * @param {string} obj_text 
+ */
+ async function* parseObj(obj_text) {
+    let verts = [];
+    let texels = [];
+    let inds = [];
+    let textureFile = null;
+    let mtlFile = null;
+    let indexOffset = 1; // obj indices start at 1
+    for (let line of obj_text.split('\n')) {
+        // remove comments and break up on whitespace
+        let data = line.split('#', 1)[0].trim().split(/\s+/);
+        // skip empty lines
+        if (data.length === 0) { continue }
+        
+        switch (data[0]) {
+            case 'mtllib':
+                // sets the corresponding mtl file that will be used for all obj's textures
+                mtlFile = data[1];
+                break;
+            case "usemtl":
+                let useMtl = data[1];
+                await fetch(mtlFile)
+                    .then(response => response.text())
+                    .then(text => {
+                        let record = false;
+                        for (let l of text.split('\n')) {
+                            if (l.endsWith(useMtl)) {
+                                record = true;
+                            }
+                            if (l.startsWith("map_Kd") && record) {
+                                // reverse split on '/' and take the last element
+                                let texture = l.split('/').pop();
+                                textureFile = texture;
+                            }
+                        }
+                    });
+                break;
+            case 'o':
+                // marks the start of a new object
+                if (verts.length > 0) {
+                    yield {"vertices": verts, "indices": inds, "texels": texels, "texture": textureFile};
+                    indexOffset += verts.length/3;
+                    verts = [];
+                    texels = [];
+                    inds = [];
+                }
+                break;
+            case 'v':
+                // vertex line
+                if (data.length !== 4)
+                    throw `All vertices must be 3D, vertex ${verts.length/3} is ${data.length-1}D`;
+                verts.push(...data.slice(1).map(x => +x));
+                break;
+            case 'vt':
+                // texture coordinates
+                if (data.length !== 3)
+                    throw `All texture coordinates must be 2D, texel ${texels.length/2} is ${data.length-1}D`;
+                texels.push(...data.slice(1).map(x => +x));
+                break;
+            case 'f':
+                // face line
+                if (data.length !== 4)
+                    throw `All faces must be triangles, face ${inds.length/3} has ${data.length-1} vertices`;
+                inds.push(...data.slice(1).map(x => parseInt(x.split('/', 1)[0])-indexOffset));
+                break;
+            default:
+                // all other lines are ignored
+                console.debug('ignoring', line);
+        }
+    }
+    // return the results
+    yield {"vertices": verts, "indices": inds, "texels": texels, "texture": textureFile};
+}
+
+/** Save ('download') a text file with the given filename. */
+function save(text, filename) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+/** Get a filename without the extension. */
+function filenameWithoutExt(filename) {
+    let dot = filename.lastIndexOf(".");
+    return dot > 0 ? filename.substr(0, dot) : filename;
+}
+
+/** Convert an OBJ file 2 a JSON file. */
+function objFile2json(file) {
+    // Get the new file name (remove extension and use .json)
+    filename = `${filenameWithoutExt(file.name)}.json`;
+    let zip = new JSZip();
+    // Read the file as text
+    file.text().then(async (data) => {
+        // Process OBJ data, convert to JSON, and save
+        // save(JSON.stringify(obj2dict(data)), filename);
+        const parseObjGen = parseObj(data);
+        let i = 0;
+        while (true) {
+            let obj = await parseObjGen.next();
+            if (obj.done) { break; }
+            console.log(i)
+            const filename = `${filenameWithoutExt(file.name)}_${i++}.json`
+            // save(JSON.stringify(obj.value), `${filenameWithoutExt(file.name)}_${i++}.json`);
+            zip.file(filename, JSON.stringify(obj.value));
+        }
+        zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                // see FileSaver.js
+                saveAs(content, `${filenameWithoutExt(file.name)}.zip`);
+            });
+    }).catch(alert);
+}
+
+        </script>
+    </head>
+    <body>
+        <h1>Convert OBJ to JSON</h1>
+        <div>
+            <input type="file" id="file">
+            <input type="button" value="Convert!"
+                onclick="objFile2json(document.getElementById('file').files[0])">
+        </div>
+    </body>
+</html>
