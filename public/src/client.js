@@ -176,7 +176,7 @@ function initBuffers() {
     gl.models = [];
 
     for (let i = 0; i <= 243; i++) {
-        gl.models.push(loadModel(`models/moraviancampusnonormals_${i}.json`));
+        gl.models.push(loadModel(`models/moraviancampus_${i}.json`));
     }
 
     Promise.all(gl.models)

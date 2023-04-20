@@ -1,5 +1,5 @@
 let currentListeners = [];
-
+let zoom = 1;
 function setDefaultListeners() {
     // Set the default listeners for movement
     gl.canvas.addEventListener('keydown', defaultMovement);
@@ -34,6 +34,17 @@ function defaultMouseMovement(e) {
 
     // change x and y rotation based on mouse movement
     // TODO
+    // zoom += y / 100;
+    // if (zoom < 0.1) {
+    //     zoom = 0.1;
+    // }
+    // if (zoom > 15) {
+    //     zoom = 15;
+    // }
+    // let mv = mat4.create()
+    // mat4.rotateX(mv, mv, Math.PI / 2);
+    // mat4.translate(mv, mv, [5, -zoom, 0]);
+    // gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
 
 }
 

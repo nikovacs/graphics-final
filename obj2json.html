@@ -88,8 +88,9 @@ function obj2dict(obj_text) {
                             }
                             if (l.startsWith("map_Kd") && record) {
                                 // reverse split on '/' and take the last element
-                                let texture = l.split('/').pop();
-                                textureFile = texture;
+                                let texture = l.split('/');
+                                textureFile = texture.pop();
+                                record = false;
                             }
                         }
                     });
