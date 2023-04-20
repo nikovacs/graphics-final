@@ -38,7 +38,7 @@ window.addEventListener('load', function init() {
     gl.clearColor(0.2, 0.2, 0.2, 1); // setup the background color with red, green, blue, and alpha
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
-    // gl.cullFace(gl.BACK);
+    gl.cullFace(gl.BACK);
 
     // Initialize the WebGL program and data
     gl.program = initProgram();
@@ -48,14 +48,15 @@ window.addEventListener('load', function init() {
     // Set initial values of uniforms
     updateProjectionMatrix();
     let mv = mat4.create();
-    mat4.rotateX(mv, mv, -Math.PI / 2);
-    mat4.translate(mv, mv, [0, 0.5, 0])
+    // mat4.rotateX(mv, mv, -Math.PI / 2);
+    mat4.translate(mv, mv, [0, 0, -15])
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
+    gl.uniform1i(gl.program.uTexture, 0);
 
 
     // Render the static scene
-    onWindowResize();
-    render();
+    // onWindowResize();
+    // render();
 });
 
 
@@ -80,11 +81,13 @@ function initProgram() {
         // Attributes for the vertex (from VBOs)
         in vec4 aPosition;
         in vec3 aNormal;
+        in vec2 aTexCoord;
 
         // Vectors (varying variables to vertex shader)
         out vec3 vNormalVector;
         out vec3 vLightVector;
         out vec3 vEyeVector;
+        out vec2 vTexCoord;
 
         void main() {
             mat4 mv = uModelViewMatrix;// * uViewMatrix;
@@ -96,12 +99,16 @@ function initProgram() {
             vEyeVector = -P.xyz;
 
             gl_Position = uProjectionMatrix * P;
+
+            vTexCoord = aTexCoord;
         }`
     );
     // Fragment Shader - Phong Shading and Reflections
     let frag_shader = compileShader(gl, gl.FRAGMENT_SHADER,
         `#version 300 es
         precision mediump float;
+
+        uniform sampler2D uTexture;
 
         // Light and material properties
         const vec3 lightColor = vec3(1, 1, 1);
@@ -115,6 +122,7 @@ function initProgram() {
         in vec3 vNormalVector;
         in vec3 vLightVector;
         in vec3 vEyeVector;
+        in vec2 vTexCoord;
 
         // Output color
         out vec4 fragColor;
@@ -136,10 +144,13 @@ function initProgram() {
             }
             
             // Compute final color
+            vec4 color = texture(uTexture, vTexCoord);// * materialColor;
+
+            // Compute final color
             fragColor.rgb = lightColor * (
-                (materialAmbient + materialDiffuse * diffuse) * uMaterialColor.rgb +
+                (materialAmbient + materialDiffuse * diffuse) * color.rgb +
                 materialSpecular * specular);
-            fragColor.a = uMaterialColor.a;
+            fragColor.a = color.a;
         }`
     );
 
@@ -150,11 +161,13 @@ function initProgram() {
     // Get the attribute indices
     program.aPosition = gl.getAttribLocation(program, 'aPosition');
     program.aNormal = gl.getAttribLocation(program, 'aNormal');
+    program.aTexCoord = gl.getAttribLocation(program, 'aTexCoord');
 
     // Get the uniform indices
     program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
     program.uProjectionMatrix = gl.getUniformLocation(program, 'uProjectionMatrix');
     program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
+    program.uTexture = gl.getUniformLocation(program, 'uTexture');
 
     return program;
 }
@@ -163,20 +176,30 @@ function initBuffers() {
     gl.models = [];
 
     for (let i = 0; i <= 243; i++) {
-        gl.models.push(`moraviancampusnonormals_${i}.json`);
+        gl.models.push(loadModel(`models/moraviancampusnonormals_${i}.json`));
     }
 
-    Promise.all(
-        gl.models.map((model) => {
-            let [vao, textureFile] = loadModel(model);
-            let img = new Image();
-            img.src = textureFile;
-            img.addEventListener('load', () => { // definitely does not work, fix tomorrow
-                return [vao, img];
+    Promise.all(gl.models)
+    .then((models) => {
+        const imagePromises = models.map((model, idx) => {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onerror = reject;
+                image.src = "images/"+model.texture;
+                image.addEventListener('load', () => {
+                    model.texture = loadTexture(gl, image, idx);
+                    model.idx = idx;
+                    resolve();
+                });
             });
-        }
-    ))
-
+        });
+        Promise.all(imagePromises)
+        .then(async () => {
+            gl.models = await Promise.all(gl.models)
+            onWindowResize();
+            render();
+        })
+    })
 }
 
 function initEvents() {
@@ -196,13 +219,18 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     for (let model of gl.models) {
+        // console.log(model.coords.length/3, model.indices.length)
+        // console.log(model.filename)
         gl.bindVertexArray(model.vao);
-        gl.uniform4fv(gl.program.uMaterialColor, model.materialColor);
+        gl.uniform1i(gl.program.uTexture, model.idx);
+        gl.bindTexture(gl.TEXTURE_2D, model.texture);
+        
+        // // gl.uniform4fv(gl.program.uMaterialColor, model.materialColor);
         gl.drawElements(model.drawMode, model.numElements, gl.UNSIGNED_SHORT, 0);
-        gl.bindVertexArray(null);
     }
-
-
+    gl.bindVertexArray(null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    
     window.requestAnimationFrame(render);
 }
 

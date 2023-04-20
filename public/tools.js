@@ -59,7 +59,7 @@ function loadTexture(gl, img, idx) {
 	if (typeof idx === "undefined") { idx = 0; }
 
 	let texture = gl.createTexture(); // create a texture resource on the GPU
-	gl.activeTexture(gl['TEXTURE'+idx]); // set the current texture that all following commands will apply to
+	gl.activeTexture(gl.TEXTURE0 + idx); // set the current texture that all following commands will apply to
 	gl.bindTexture(gl.TEXTURE_2D, texture); // assign our texture resource as the current texture
 
 	// Load the image data into the texture
@@ -167,6 +167,7 @@ function loadModel(filename) {
         .then(r => r.json())
         .then(raw_model => {
             let coords = new Float32Array(raw_model.vertices);
+            // console.log("coords len" + coords.length/3)
             let inds = new Uint16Array(raw_model.indices);
             let texCoords = new Float32Array(raw_model.texels);
             let normals = calc_normals(coords, inds, false);
@@ -175,12 +176,22 @@ function loadModel(filename) {
                 [
                     [gl.program.aPosition, coords, 3],
                     [gl.program.aNormal, normals, 3],
-                    [gl.program.aTexCoord, texCoords, 2]
+                    [gl.program.aTexCoord, texCoords, 2] // TODO add this back in when read
                 ],
                 inds
             )
 
-            return [vao, raw_model.texture]
+            return {
+                    vao: vao,
+                    texture: raw_model.texture,
+                    drawMode: gl.TRIANGLES,
+                    numElements: inds.length,
+                    coords: coords,
+                    normals: normals,
+                    texCoords: texCoords,
+                    indices: inds,
+                    filename: filename // testing
+                }
             
         })
         // eslint-disable-next-line no-console
