@@ -176,7 +176,8 @@ function loadModel(filename) {
                     [gl.program.aPosition, coords, 3],
                     [gl.program.aNormal, normals, 3],
                     [gl.program.aTexCoord, texCoords, 2]
-                ]
+                ],
+                inds
             )
 
             return [vao, raw_model.texture]
