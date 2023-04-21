@@ -169,7 +169,7 @@ function initProgram() {
 function initBuffers() {
     gl.models = [];
 
-    for (let i = 0; i <= 0; i++) {
+    for (let i = 0; i <= 74; i++) {
         gl.models.push(loadModel(`models/moraviancampusreduced_${i}.json`));
     }
 
