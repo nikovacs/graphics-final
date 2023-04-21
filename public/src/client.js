@@ -11,8 +11,8 @@
 let gl;
 
 let self = {
-    x: 0,
-    y: 0,
+    pos: [0, 0, 0],
+    x_rot: 0,
     y_rot: 0,
     animation: "idle"
 }
@@ -36,16 +36,18 @@ window.addEventListener('load', function init() {
 
     // Initialize the WebGL program and data
     gl.program = initProgram();
-    initBuffers();
     initEvents();
+    initBuffers();
+    
 
     // Set initial values of uniforms
     updateProjectionMatrix();
-    let mv = mat4.create();
-    mat4.rotateX(mv, mv, Math.PI / 2);
-    mat4.translate(mv, mv, [0, -10, 0])
-    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
-    gl.uniform1i(gl.program.uTexture, 0);
+    updateModelViewMatrix();
+    // let mv = mat4.create();
+    // mat4.rotateX(mv, mv, Math.PI / 2);
+    // mat4.translate(mv, mv, [0, -10, 0])
+    // gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
+    // gl.uniform1i(gl.program.uTexture, 0);
 
 
     // Render the static scene
@@ -237,4 +239,16 @@ function onWindowResize() {
     gl.canvas.height = window.innerHeight;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     updateProjectionMatrix();
+}
+
+function updateModelViewMatrix(directionVector = [0,0,0]) {
+    let mv = mat4.create();
+    mv.rotateY(mv, mv, degToRad(player_pos.y_rot))
+    vec3.transformMat4(directionVector, directionVector, mat4.invert(mat4.create(), mv))
+    
+
+}
+
+function degToRad(deg) {
+    return deg * Math.PI / 180.0;
 }
