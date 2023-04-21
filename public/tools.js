@@ -62,6 +62,8 @@ function loadTexture(gl, img, idx) {
 	gl.activeTexture(gl.TEXTURE0 + idx); // set the current texture that all following commands will apply to
 	gl.bindTexture(gl.TEXTURE_2D, texture); // assign our texture resource as the current texture
 
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    
 	// Load the image data into the texture
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 

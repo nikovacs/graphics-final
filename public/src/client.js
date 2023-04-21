@@ -43,7 +43,7 @@ window.addEventListener('load', function init() {
     updateProjectionMatrix();
     let mv = mat4.create();
     mat4.rotateX(mv, mv, Math.PI / 2);
-    mat4.translate(mv, mv, [-3, -8, 0])
+    mat4.translate(mv, mv, [0, -10, 0])
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
     gl.uniform1i(gl.program.uTexture, 0);
 
@@ -151,7 +151,7 @@ function initProgram() {
     // Link the shaders into a program and use them with the WebGL context
     let program = linkProgram(gl, vert_shader, frag_shader);
     gl.useProgram(program);
-    
+
     // Get the attribute indices
     program.aPosition = gl.getAttribLocation(program, 'aPosition');
     program.aNormal = gl.getAttribLocation(program, 'aNormal');
@@ -174,26 +174,26 @@ function initBuffers() {
     }
 
     Promise.all(gl.models)
-    .then((models) => {
-        const imagePromises = models.map((model, idx) => {
-            return new Promise((resolve, reject) => {
-                const image = new Image();
-                image.onerror = reject;
-                image.src = "images/"+model.texture;
-                image.addEventListener('load', () => {
-                    model.texture = loadTexture(gl, image, idx);
-                    model.idx = idx;
-                    resolve();
+        .then((models) => {
+            const imagePromises = models.map((model, idx) => {
+                return new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.onerror = reject;
+                    image.src = "images/" + model.texture;
+                    image.addEventListener('load', () => {
+                        model.texture = loadTexture(gl, image, idx);
+                        model.idx = idx;
+                        resolve();
+                    });
                 });
             });
-        });
-        Promise.all(imagePromises)
-        .then(async () => {
-            gl.models = await Promise.all(gl.models)
-            onWindowResize();
-            render();
+            Promise.all(imagePromises)
+                .then(async () => {
+                    gl.models = await Promise.all(gl.models)
+                    onWindowResize();
+                    render();
+                })
         })
-    })
 }
 
 function initEvents() {
@@ -217,14 +217,15 @@ function render() {
         // console.log(model.filename)
         gl.bindVertexArray(model.vao);
         gl.uniform1i(gl.program.uTexture, model.idx);
+        gl.activeTexture(gl.TEXTURE0 + model.idx);
         gl.bindTexture(gl.TEXTURE_2D, model.texture);
-        
+
         // // gl.uniform4fv(gl.program.uMaterialColor, model.materialColor);
         gl.drawElements(model.drawMode, model.numElements, gl.UNSIGNED_SHORT, 0);
     }
     gl.bindVertexArray(null);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    
+
     window.requestAnimationFrame(render);
 }
 
