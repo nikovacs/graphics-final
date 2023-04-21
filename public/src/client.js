@@ -49,7 +49,7 @@ window.addEventListener('load', function init() {
     updateProjectionMatrix();
     let mv = mat4.create();
     mat4.rotateX(mv, mv, Math.PI / 2);
-    mat4.translate(mv, mv, [5, -15, 0])
+    mat4.translate(mv, mv, [5, -10, 0])
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
     gl.uniform1i(gl.program.uTexture, 0);
 
@@ -175,8 +175,8 @@ function initProgram() {
 function initBuffers() {
     gl.models = [];
 
-    for (let i = 0; i <= 243; i++) {
-        gl.models.push(loadModel(`models/moraviancampus_${i}.json`));
+    for (let i = 0; i <= 74; i++) {
+        gl.models.push(loadModel(`models/moraviancampusreduced_${i}.json`));
     }
 
     Promise.all(gl.models)
