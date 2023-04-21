@@ -7,12 +7,6 @@
 // Final Project: Tour of Moravian Campus
 'use strict';
 
-// Allow use of glMatrix values directly instead of needing the glMatrix prefix
-const vec3 = glMatrix.vec3;
-const vec4 = glMatrix.vec4;
-const mat4 = glMatrix.mat4;
-const quat = glMatrix.quat;
-
 // Global WebGL context variable
 let gl;
 
@@ -49,7 +43,7 @@ window.addEventListener('load', function init() {
     updateProjectionMatrix();
     let mv = mat4.create();
     mat4.rotateX(mv, mv, Math.PI / 2);
-    mat4.translate(mv, mv, [5, -10, 0])
+    mat4.translate(mv, mv, [-3, -8, 0])
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
     gl.uniform1i(gl.program.uTexture, 0);
 
@@ -175,7 +169,7 @@ function initProgram() {
 function initBuffers() {
     gl.models = [];
 
-    for (let i = 0; i <= 74; i++) {
+    for (let i = 0; i <= 0; i++) {
         gl.models.push(loadModel(`models/moraviancampusreduced_${i}.json`));
     }
 
