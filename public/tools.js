@@ -211,6 +211,7 @@ const vec3 = glMatrix.vec3;
 const vec4 = glMatrix.vec4;
 const mat4 = glMatrix.mat4;
 const quat = glMatrix.quat;
+const _temps = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
 
 
 
@@ -591,3 +592,35 @@ function cylinder(vertices, normals, indices, height, diameter, n) {
     indices.push(...inds.map(x => x + v_off));
     return [i_off, inds.length];
 }
+
+/**
+ * Finds the intersection between a line segment and a triangle. The line segment is given by a
+ * point (p) and vector (vec). The triangle is given by three points (abc). If there is no
+ * intersection, the line segment is parallel to the plane of the triangle, or the triangle is
+ * degenerate then null is returned. Otherwise a vec4 is returned that contains the intersection.
+ *
+ * Each argument must be a vec3 (i.e. 3 element array).
+ */
+function line_seg_triangle_intersection(p, vec, a, b, c) {
+    let [u, v] = [vec3.subtract(_temps[0], b, a), vec3.subtract(_temps[1], c, a)]; // triangle edge vectors
+    let uu = vec3.dot(u, u), vv = vec3.dot(v, v), uv = vec3.dot(u, v);
+    let tri_scale = uv*uv-uu*vv;
+    if (tri_scale === 0) { return null; } // triangle is degenerate
+    let n = vec3.cross(_temps[2], u, v); // normal vector of the triangle
+
+    // Find the point where the line intersects the plane of the triangle
+    let denom = vec3.dot(n, vec);
+    if (denom === 0) { return null; } // line segment is parallel to the plane of the triangle
+    let rI = vec3.dot(n, vec3.subtract(_temps[3], a, p)) / denom;
+    if (rI < 0 || rI > 1) { return null; } // line segment does not intersect the plane of the triangle
+    p = vec3.add(_temps[4], p, vec3.scale(_temps[5], vec, rI)); // the point where the line segment intersects the plane of the triangle
+
+    // Check if the point of intersection lies within the triangle
+    let w = vec3.subtract(_temps[6], p, a), wv = vec3.dot(w, v), wu = vec3.dot(w, u);
+    let sI = (uv*wv-vv*wu)/tri_scale, tI = (uv*wu-uu*wv)/tri_scale;
+    if (sI < 0 || tI < 0 || sI + tI > 1) { return null; } // intersection point is outside of the triangle
+
+    // Return the intersection
+    return p;
+}
+
