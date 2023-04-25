@@ -1,5 +1,5 @@
 class octTree {
-    constructor(centerX, centerY, centerZ, halfDist, maxDepth = 8, depth = 0) {
+    constructor(centerX, centerY, centerZ, halfDist, maxTriangles = 512, maxDepth = 8, depth = 0) {
         this.cX = centerX;
         this.cY = centerY;
         this.cZ = centerZ;
@@ -8,6 +8,7 @@ class octTree {
         this.children = []; // eight octTrees at most
         this.depth = depth;
         this.maxDepth = maxDepth;
+        this.maxTriangles;
     }
 
     /**
@@ -15,12 +16,11 @@ class octTree {
      * @param {Object} tri [{x1, y1, z1}, {x2, y2, z2}, {x3, y3, z3}]
      */
     addTriangle(tri) {
-        if ((this.triangles.length < 8 && this.children.length === 0) || this.depth === this.maxDepth - 1) {
-            // console.log(this.depth)
+        if ((this.triangles.length < this.maxTriangles && this.children.length === 0) || this.depth === this.maxDepth - 1) {
             this.triangles.push(tri);
             return;
         }
-        if (this.triangles.length === 8) {
+        if (this.triangles.length === this.maxTriangles) {
             this._subDivide();
         }
         for (let child of this.children) {
@@ -81,14 +81,14 @@ class octTree {
     _subDivide() {
         let halfDist = this.halfDist / 2;
         this.children = [
-            new octTree(this.cX - halfDist, this.cY - halfDist, this.cZ - halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX - halfDist, this.cY - halfDist, this.cZ + halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX - halfDist, this.cY + halfDist, this.cZ - halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX - halfDist, this.cY + halfDist, this.cZ + halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX + halfDist, this.cY - halfDist, this.cZ - halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX + halfDist, this.cY - halfDist, this.cZ + halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX + halfDist, this.cY + halfDist, this.cZ - halfDist, halfDist, this.maxDepth, this.depth + 1),
-            new octTree(this.cX + halfDist, this.cY + halfDist, this.cZ + halfDist, halfDist, this.maxDepth, this.depth + 1)
+            new octTree(this.cX - halfDist, this.cY - halfDist, this.cZ - halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX - halfDist, this.cY - halfDist, this.cZ + halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX - halfDist, this.cY + halfDist, this.cZ - halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX - halfDist, this.cY + halfDist, this.cZ + halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX + halfDist, this.cY - halfDist, this.cZ - halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX + halfDist, this.cY - halfDist, this.cZ + halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX + halfDist, this.cY + halfDist, this.cZ - halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1),
+            new octTree(this.cX + halfDist, this.cY + halfDist, this.cZ + halfDist, halfDist, this.maxTriangles, this.maxDepth, this.depth + 1)
         ]
 
         for (let triangle of this.triangles) {
