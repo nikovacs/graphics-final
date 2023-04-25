@@ -197,7 +197,7 @@ function initEvents() {
  */
 function updateProjectionMatrix() {
     let aspect = gl.canvas.width / gl.canvas.height;
-    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, null);
+    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.0001, null);
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
@@ -234,19 +234,11 @@ function onWindowResize() {
  * @param {Array || glMatrix.vec3} directionVector 
  */
 function updateModelViewMatrix(directionVector = [0, 0, 0]) {
-    if (octtree !== null) {
-    console.log(octtree.query(
-        {
-            x: -self.pos[0],
-            y: -self.pos[1],
-            z: -self.pos[2]
-        }
-    ))
-    }
     let mv = mat4.create();
     mat4.rotateY(mv, mv, degToRad(self.rot[1]))
     vec3.transformMat4(directionVector, directionVector, mat4.invert(mat4.create(), mv))
-    vec3.add(self.pos, self.pos, directionVector)
+    checkCollision(directionVector, self.pos);
+    // vec3.add(self.pos, self.pos, directionVector)
     mat4.translate(mv, mv, self.pos);
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
 }
@@ -280,4 +272,35 @@ function generateOctTree() {
             octtree.addTriangle(triangle);
         }
     }
+}
+
+/**
+ * Checks if the player is colliding with any of the triangles in the octTree.
+ * The `point` variable will be updated to the new location if there is no collision
+ * and will updated with a truncated directionVector if there is a collision.
+ * @param {Array || glMatrix.vec3} directionVector - the direction the player is moving
+ * @param {Array || glMatrix.vec3} point - the point the direction will be added to
+ * @returns {}
+ */
+function checkCollision(directionVector, point) {
+    if (octtree === null) { return; }
+    let newLoc = vec3.add(_temps[3], point, directionVector)
+    let nearbyTriangles = octtree.query({ x: -newLoc[0], y: -newLoc[1], z: -newLoc[2] })
+    // console.log(nearbyTriangles)
+    console.log('v')
+    // let tempPointVec3 = vec3.create()
+    // let tempDirectionVec3 = vec3.create()
+    for (const triangle of nearbyTriangles) {
+        // each triangle is an array containing three objects that represent its points
+        let ret = line_seg_triangle_intersection(
+            vec3.negate(_temps[4], point),
+            vec3.negate(_temps[5], directionVector),
+            Object.values(triangle[0]), Object.values(triangle[1]), Object.values(triangle[2])
+        )
+        if (ret !== null) { // if there is a collision
+            return; // don't update the position
+        }
+    }
+    // if we get here, no collision has been found, update position
+    vec3.add(self.pos, self.pos, directionVector)
 }
