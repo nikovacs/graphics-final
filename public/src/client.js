@@ -256,7 +256,7 @@ function degToRad(deg) {
  * generates the octTree that will be used for collision
  */
 function generateOctTree() {
-    octtree = new octTree(-4.25, 0.75, 0.31, 2.85);
+    octtree = new octTree(-4.25, 0.75, 0.31, 2.85, 512);
     for (const model of gl.models) {
         for (let i = 0; i < model.indices.length; i += 3) {
             const triangle = []

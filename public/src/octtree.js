@@ -8,7 +8,7 @@ class octTree {
         this.children = []; // eight octTrees at most
         this.depth = depth;
         this.maxDepth = maxDepth;
-        this.maxTriangles;
+        this.maxTriangles = maxTriangles;
     }
 
     /**
