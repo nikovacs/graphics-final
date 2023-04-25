@@ -9,11 +9,11 @@
 
 // Global WebGL context variable
 let gl;
+let octtree = null;
 
 let self = {
-    pos: [0, 0, 0],
-    x_rot: 0,
-    y_rot: 0,
+    pos: [4.25, -0.75, -0.31],
+    rot: [0, 0, 0],
     animation: "idle"
 }
 
@@ -38,21 +38,10 @@ window.addEventListener('load', function init() {
     gl.program = initProgram();
     initEvents();
     initBuffers();
-    
 
     // Set initial values of uniforms
     updateProjectionMatrix();
     updateModelViewMatrix();
-    // let mv = mat4.create();
-    // mat4.rotateX(mv, mv, Math.PI / 2);
-    // mat4.translate(mv, mv, [0, -10, 0])
-    // gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
-    // gl.uniform1i(gl.program.uTexture, 0);
-
-
-    // Render the static scene
-    // onWindowResize();
-    // render();
 });
 
 
@@ -192,6 +181,7 @@ function initBuffers() {
             Promise.all(imagePromises)
                 .then(async () => {
                     gl.models = await Promise.all(gl.models)
+                    generateOctTree();
                     onWindowResize();
                     render();
                 })
@@ -215,8 +205,6 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     for (let model of gl.models) {
-        // console.log(model.coords.length/3, model.indices.length)
-        // console.log(model.filename)
         gl.bindVertexArray(model.vao);
         gl.uniform1i(gl.program.uTexture, model.idx);
         gl.activeTexture(gl.TEXTURE0 + model.idx);
@@ -241,14 +229,55 @@ function onWindowResize() {
     updateProjectionMatrix();
 }
 
-function updateModelViewMatrix(directionVector = [0,0,0]) {
+/**
+ * Updates modelViewMatrix by translating it along a vector.
+ * @param {Array || glMatrix.vec3} directionVector 
+ */
+function updateModelViewMatrix(directionVector = [0, 0, 0]) {
+    if (octtree !== null) {
+    console.log(octtree.query(
+        {
+            x: -self.pos[0],
+            y: -self.pos[1],
+            z: -self.pos[2]
+        }
+    ))
+    }
     let mv = mat4.create();
-    mv.rotateY(mv, mv, degToRad(player_pos.y_rot))
+    mat4.rotateY(mv, mv, degToRad(self.rot[1]))
     vec3.transformMat4(directionVector, directionVector, mat4.invert(mat4.create(), mv))
-    
-
+    vec3.add(self.pos, self.pos, directionVector)
+    mat4.translate(mv, mv, self.pos);
+    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
 }
 
+/**
+ * Converts degrees to radians
+ * @param {Number} deg 
+ * @returns {Number}
+ */
 function degToRad(deg) {
     return deg * Math.PI / 180.0;
+}
+
+/**
+ * generates the octTree that will be used for collision
+ */
+function generateOctTree() {
+    octtree = new octTree(-4.25, 0.75, 0.31, 2.85);
+    for (const model of gl.models) {
+        for (let i = 0; i < model.indices.length; i += 3) {
+            const triangle = []
+            for (let j = 0; j < 3; j++) {
+                const index = model.indices[i + j] * 3;
+                let point = {
+                    x: model.coords[index],
+                    y: model.coords[index + 1],
+                    z: model.coords[index + 2]
+                }
+                triangle.push(point);
+            }
+            octtree.addTriangle(triangle);
+        }
+    }
 }

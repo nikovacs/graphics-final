@@ -1,31 +1,46 @@
 let currentListeners = [];
-let zoom = 1;
+
 function setDefaultListeners() {
     // Set the default listeners for movement
-    gl.canvas.addEventListener('keydown', defaultMovement);
+    window.addEventListener('keydown', defaultMovement);
     currentListeners.push(['keydown', defaultMovement]);
 
     // change x and y rotation based on mouse movement
-    gl.canvas.addEventListener('mousemove', defaultMouseMovement);
-    currentListeners.push(['mousemove', defaultMouseMovement]);
+    // gl.canvas.addEventListener('mousemove', defaultMouseMovement);
+    // currentListeners.push(['mousemove', defaultMouseMovement]);
 }
 
 function defaultMovement(e) {
+    let directionVector = [0, 0, 0]
     // movement keys
     switch (e.key) {
     case 'w':
         // move forward
+        directionVector[2] = 0.05;
         break;
     case 'a':
         // move left
+        self.rot[1] -= 5;
         break;
     case 's':
         // move backward
+        directionVector[2] = -0.05;
         break;
     case 'd':
         // move right
+        self.rot[1] += 5;
         break;
+    case " ":
+        // move up
+        self.pos[1] -= 0.05;
+        break;
+    case "Shift":
+        // move down
+        self.pos[1] += 0.05;
+        break;
+
     }
+    updateModelViewMatrix(directionVector);
 }
 
 function defaultMouseMovement(e) {
