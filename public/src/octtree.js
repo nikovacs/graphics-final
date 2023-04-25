@@ -15,8 +15,8 @@ class octTree {
      * @param {Object} tri [{x1, y1, z1}, {x2, y2, z2}, {x3, y3, z3}]
      */
     addTriangle(tri) {
-        if (!this.shouldIncludeTriangle(tri)) { return; }
-        if (this.triangles.length < 8 || this.depth === this.maxDepth - 1) {
+        if ((this.triangles.length < 8 && this.children.length === 0) || this.depth === this.maxDepth - 1) {
+            // console.log(this.depth)
             this.triangles.push(tri);
             return;
         }
