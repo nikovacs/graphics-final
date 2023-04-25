@@ -29,7 +29,7 @@ window.addEventListener('load', function init() {
 
     // Configure WebGL
     gl.viewport(0, 0, canvas.width, canvas.height); // this is the region of the canvas we want to draw on (all of it)
-    gl.clearColor(0.2, 0.2, 0.2, 1); // setup the background color with red, green, blue, and alpha
+    gl.clearColor(0.529, 0.808, 0.922, 1);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
