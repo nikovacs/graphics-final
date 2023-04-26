@@ -10,18 +10,18 @@
 // Global WebGL context variable
 let gl;
 
-// octTree variable
-let octtree = null;
+// quadTree variable
+let quadtree = null;
 
 // Gravity constant
 const GRAVITY = 0.05;
 
 let self = {
-    pos: [4.25, -0.75, -0.31],
+    pos: [0, 0, 0],
     rot: [0, 0, 0],
     animation: "idle",
     height: 0.025,
-    width: 0.0025,
+    width: 0.003,
 }
 
 // Once the document is fully loaded run this init function.
@@ -188,7 +188,8 @@ function initBuffers() {
             Promise.all(imagePromises)
                 .then(async () => {
                     gl.models = await Promise.all(gl.models)
-                    generateOctTree();
+                    spawnPlayer();
+                    generatequadTree();
                     onWindowResize();
                     render();
                     doMovement();
@@ -247,7 +248,7 @@ function updateModelViewMatrix(directionVector = [0, 0, 0]) {
     mat4.rotateY(mv, mv, degToRad(self.rot[1]))
 
     // create this separately because we do not want the X rotation to affect the directionVector
-    let invMv = mat4.rotateY(mat4.create(), mat4.create(), degToRad(-self.rot[1]))    
+    let invMv = mat4.rotateY(mat4.create(), mat4.create(), degToRad(-self.rot[1]))
 
     vec3.transformMat4(directionVector, directionVector, invMv)
     // minDistVec is used to ensure that a point stays at least a certain distance away from a collision
@@ -255,20 +256,16 @@ function updateModelViewMatrix(directionVector = [0, 0, 0]) {
     vec3.transformMat4(minDistVec, minDistVec, invMv)
 
     // by checking twice the distance, we can avoid being closer than the minimum distance
-    let collision = checkCollision([...directionVector].map(x => x*2), self.pos);
+    let collision = checkCollision([...directionVector].map(x => x * 2), self.pos);
     if (collision) {
         vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec))
     } else {
         vec3.add(self.pos, self.pos, directionVector)
     }
+    tryGravity()
 
-    // ensure that the camera is always at the same height above the ground
-    minDistVec = vec3.fromValues(0, self.height, 0);
-    collision = checkCollision([0, GRAVITY*2, 0], self.pos);
-    if (collision) {
-        vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec))
-    } else {
-        vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
+    if (self.pos[1] > 2) {
+        spawnPlayer();
     }
 
     mat4.translate(mv, mv, self.pos);
@@ -285,10 +282,10 @@ function degToRad(deg) {
 }
 
 /**
- * generates the octTree that will be used for collision
+ * generates the quadTree that will be used for collision
  */
-function generateOctTree() {
-    octtree = new octTree(-4.25, 0.75, 0.31, 2.85, 512);
+function generatequadTree() {
+    quadtree = new quadTree(-4.25, /*0.75,*/ 0.31, 2.85, 4096, 8);
     for (const model of gl.models) {
         for (let i = 0; i < model.indices.length; i += 3) {
             const triangle = []
@@ -301,26 +298,26 @@ function generateOctTree() {
                 }
                 triangle.push(point);
             }
-            octtree.addTriangle(triangle);
+            quadtree.addTriangle(triangle);
         }
     }
 }
 
 /**
- * Checks if the player is colliding with any of the triangles in the octTree.
+ * Checks if the player is colliding with any of the triangles in the quadTree.
  * @param {Array || glMatrix.vec3} directionVector - the direction the player is moving
  * @param {Array || glMatrix.vec3} point - the point the direction will be added to
  * @returns {Array || glMatrix.vec3 || null} - the point of collision or null if there is no collision
  */
 function checkCollision(directionVector, point) {
-    if (octtree === null) { return; }
+    if (quadtree === null) { return; }
     let newLoc = vec3.add(vec3.create(), point, directionVector)
-    let nearbyTriangles = octtree.query({ x: -newLoc[0], y: -newLoc[1], z: -newLoc[2] })
+    let nearbyTriangles = quadtree.query({ x: -newLoc[0], y: -newLoc[1], z: -newLoc[2] })
     for (const triangle of nearbyTriangles) {
         // each triangle is an array containing three objects that represent its points
         let collision = line_seg_triangle_intersection(
-            vec3.negate(_temps[4], point),
-            vec3.negate(_temps[5], directionVector),
+            vec3.negate(vec3.create(), point),
+            vec3.negate(vec3.create(), directionVector),
             Object.values(triangle[0]), Object.values(triangle[1]), Object.values(triangle[2])
         )
         if (collision !== null) { // if there is a collision
@@ -329,4 +326,46 @@ function checkCollision(directionVector, point) {
     }
     // if we get here, no collision has been found
     return null;
+}
+
+// function tryGravity() {
+//     // check once at double distance and again at the normal distance
+//     let minDistVec = vec3.fromValues(0, self.height, 0);
+//     let collision = checkCollision([0, GRAVITY*2, 0], self.pos);
+//     if (collision) {
+//         vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec));
+//         return;
+//     }
+//     vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
+
+// }
+
+function tryGravity() {
+    if (quadtree === null) { return; }
+    let collisions = [];
+    let positions = [
+        { pos: [self.pos[0] + self.width / 2, self.pos[1], self.pos[2]], offset: [0, 0, self.width / 2] },
+        { pos: [self.pos[0] - self.width / 2, self.pos[1], self.pos[2]], offset: [0, 0, -self.width / 2] },
+        { pos: [self.pos[0], self.pos[1], self.pos[2] + self.width / 2], offset: [self.width / 2, 0, 0] },
+        { pos: [self.pos[0], self.pos[1], self.pos[2] - self.width / 2], offset: [-self.width / 2, 0, 0] }
+    ]
+    for (const pos of positions) {
+        collisions.push(checkCollision([0, GRAVITY * 2, 0], pos.pos))
+    }
+
+    let minDistVec = vec3.fromValues(0, self.height, 0);
+
+    for (let i = 0; i < collisions.length; i++) {
+        if (collisions[i] !== null) {
+            vec3.add(self.pos, vec3.negate(collisions[i], collisions[i]), vec3.negate(minDistVec, minDistVec))
+            vec3.add(self.pos, self.pos, positions[i].offset)
+            return;
+        }
+    }
+    vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
+}
+
+function spawnPlayer() {
+    self.pos = [4.1855, -0.574, -1.51]
+    self.rot [0, 0, 0]
 }
