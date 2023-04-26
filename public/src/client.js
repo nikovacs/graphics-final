@@ -189,7 +189,7 @@ function initBuffers() {
                 .then(async () => {
                     gl.models = await Promise.all(gl.models)
                     spawnPlayer();
-                    generatequadTree();
+                    generateQuadTree();
                     onWindowResize();
                     render();
                     doMovement();
@@ -284,7 +284,7 @@ function degToRad(deg) {
 /**
  * generates the quadTree that will be used for collision
  */
-function generatequadTree() {
+function generateQuadTree() {
     quadtree = new quadTree(-4.25, /*0.75,*/ 0.31, 2.85, 4096, 8);
     for (const model of gl.models) {
         for (let i = 0; i < model.indices.length; i += 3) {
