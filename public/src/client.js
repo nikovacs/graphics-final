@@ -10,11 +10,18 @@
 // Global WebGL context variable
 let gl;
 
+// octTree variable
+let octtree = null;
+
+// Gravity constant
+const GRAVITY = 0.05;
+
 let self = {
-    pos: [0, 0, 0],
-    x_rot: 0,
-    y_rot: 0,
-    animation: "idle"
+    pos: [4.25, -0.75, -0.31],
+    rot: [0, 0, 0],
+    animation: "idle",
+    height: 0.025,
+    width: 0.0025,
 }
 
 // Once the document is fully loaded run this init function.
@@ -29,7 +36,7 @@ window.addEventListener('load', function init() {
 
     // Configure WebGL
     gl.viewport(0, 0, canvas.width, canvas.height); // this is the region of the canvas we want to draw on (all of it)
-    gl.clearColor(0.2, 0.2, 0.2, 1); // setup the background color with red, green, blue, and alpha
+    gl.clearColor(0.529, 0.808, 0.922, 1);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
@@ -38,21 +45,10 @@ window.addEventListener('load', function init() {
     gl.program = initProgram();
     initEvents();
     initBuffers();
-    
 
     // Set initial values of uniforms
     updateProjectionMatrix();
     updateModelViewMatrix();
-    // let mv = mat4.create();
-    // mat4.rotateX(mv, mv, Math.PI / 2);
-    // mat4.translate(mv, mv, [0, -10, 0])
-    // gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
-    // gl.uniform1i(gl.program.uTexture, 0);
-
-
-    // Render the static scene
-    // onWindowResize();
-    // render();
 });
 
 
@@ -192,8 +188,10 @@ function initBuffers() {
             Promise.all(imagePromises)
                 .then(async () => {
                     gl.models = await Promise.all(gl.models)
+                    generateOctTree();
                     onWindowResize();
                     render();
+                    doMovement();
                 })
         })
 }
@@ -207,7 +205,7 @@ function initEvents() {
  */
 function updateProjectionMatrix() {
     let aspect = gl.canvas.width / gl.canvas.height;
-    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, null);
+    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.0001, null);
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
@@ -215,8 +213,6 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     for (let model of gl.models) {
-        // console.log(model.coords.length/3, model.indices.length)
-        // console.log(model.filename)
         gl.bindVertexArray(model.vao);
         gl.uniform1i(gl.program.uTexture, model.idx);
         gl.activeTexture(gl.TEXTURE0 + model.idx);
@@ -241,20 +237,110 @@ function onWindowResize() {
     updateProjectionMatrix();
 }
 
-function updateModelViewMatrix(directionVector = [0,0,0]) {
+/**
+ * Updates modelViewMatrix by translating it along a vector.
+ * @param {Array || glMatrix.vec3} directionVector 
+ */
+function updateModelViewMatrix(directionVector = [0, 0, 0]) {
     let mv = mat4.create();
+<<<<<<< HEAD
     mv.rotateY(mv, mv, degToRad(player_pos.y_rot))
     vec3.transformMat4(directionVector, directionVector, mat4.invert(mat4.create(), mv))
 
+=======
+    mat4.rotateX(mv, mv, degToRad(self.rot[0]))
+    mat4.rotateY(mv, mv, degToRad(self.rot[1]))
 
+    // create this separately because we do not want the X rotation to affect the directionVector
+    let invMv = mat4.rotateY(mat4.create(), mat4.create(), degToRad(-self.rot[1]))    
+
+    vec3.transformMat4(directionVector, directionVector, invMv)
+    // minDistVec is used to ensure that a point stays at least a certain distance away from a collision
+    let minDistVec = vec3.fromValues(0, 0, self.width);
+    vec3.transformMat4(minDistVec, minDistVec, invMv)
+
+    // by checking twice the distance, we can avoid being closer than the minimum distance
+    let collision = checkCollision([...directionVector].map(x => x*2), self.pos);
+    if (collision) {
+        vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec))
+    } else {
+        vec3.add(self.pos, self.pos, directionVector)
+    }
+
+    // ensure that the camera is always at the same height above the ground
+    minDistVec = vec3.fromValues(0, self.height, 0);
+    collision = checkCollision([0, GRAVITY*2, 0], self.pos);
+    if (collision) {
+        vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec))
+    } else {
+        vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
+    }
+>>>>>>> c5059566c4375385e689ed6187413e6b06163f51
+
+    mat4.translate(mv, mv, self.pos);
+    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
 }
 
+/**
+ * Converts degrees to radians
+ * @param {Number} deg 
+ * @returns {Number}
+ */
 function degToRad(deg) {
     return deg * Math.PI / 180.0;
 }
 
+<<<<<<< HEAD
 
 function renderCharacter(){
     [gl.vao, gl.character_torso] = initScene()
     renderNode(gl.character_torso, modelViewMatrix)
 }
+=======
+/**
+ * generates the octTree that will be used for collision
+ */
+function generateOctTree() {
+    octtree = new octTree(-4.25, 0.75, 0.31, 2.85, 512);
+    for (const model of gl.models) {
+        for (let i = 0; i < model.indices.length; i += 3) {
+            const triangle = []
+            for (let j = 0; j < 3; j++) {
+                const index = model.indices[i + j] * 3;
+                let point = {
+                    x: model.coords[index],
+                    y: model.coords[index + 1],
+                    z: model.coords[index + 2]
+                }
+                triangle.push(point);
+            }
+            octtree.addTriangle(triangle);
+        }
+    }
+}
+
+/**
+ * Checks if the player is colliding with any of the triangles in the octTree.
+ * @param {Array || glMatrix.vec3} directionVector - the direction the player is moving
+ * @param {Array || glMatrix.vec3} point - the point the direction will be added to
+ * @returns {Array || glMatrix.vec3 || null} - the point of collision or null if there is no collision
+ */
+function checkCollision(directionVector, point) {
+    if (octtree === null) { return; }
+    let newLoc = vec3.add(vec3.create(), point, directionVector)
+    let nearbyTriangles = octtree.query({ x: -newLoc[0], y: -newLoc[1], z: -newLoc[2] })
+    for (const triangle of nearbyTriangles) {
+        // each triangle is an array containing three objects that represent its points
+        let collision = line_seg_triangle_intersection(
+            vec3.negate(_temps[4], point),
+            vec3.negate(_temps[5], directionVector),
+            Object.values(triangle[0]), Object.values(triangle[1]), Object.values(triangle[2])
+        )
+        if (collision !== null) { // if there is a collision
+            return collision;
+        }
+    }
+    // if we get here, no collision has been found
+    return null;
+}
+>>>>>>> c5059566c4375385e689ed6187413e6b06163f51
