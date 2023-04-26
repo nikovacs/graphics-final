@@ -184,6 +184,7 @@ function initBuffers() {
                     generateOctTree();
                     onWindowResize();
                     render();
+                    doMovement();
                 })
         })
 }
@@ -286,8 +287,6 @@ function checkCollision(directionVector, point) {
     if (octtree === null) { return; }
     let newLoc = vec3.add(_temps[3], point, directionVector)
     let nearbyTriangles = octtree.query({ x: -newLoc[0], y: -newLoc[1], z: -newLoc[2] })
-    // console.log(nearbyTriangles)
-    console.log('v')
     // let tempPointVec3 = vec3.create()
     // let tempDirectionVec3 = vec3.create()
     for (const triangle of nearbyTriangles) {
