@@ -37,6 +37,10 @@ window.addEventListener('load', function init() {
     render();
 });
 
+function getScene(){
+
+}
+
 function initEvents(){
     window.addEventListener('keydown', function (e) {
         if (e.code === "ArrowUp") {
@@ -365,6 +369,8 @@ function copyNode(node, addl_info = {}) {
  * @param {string} id the HTML slider id
  * @param {number} angle 0, 1, or 2 for which angle the slider updates
  */
+
+
 function setupListener(node, angle, value) {
     node.rotation[angle] = value;
     updateTransformation(node);

@@ -245,10 +245,16 @@ function updateModelViewMatrix(directionVector = [0,0,0]) {
     let mv = mat4.create();
     mv.rotateY(mv, mv, degToRad(player_pos.y_rot))
     vec3.transformMat4(directionVector, directionVector, mat4.invert(mat4.create(), mv))
-    
+
 
 }
 
 function degToRad(deg) {
     return deg * Math.PI / 180.0;
+}
+
+
+function renderCharacter(){
+    [gl.vao, gl.character_torso] = initScene()
+    renderNode(gl.character_torso, modelViewMatrix)
 }
