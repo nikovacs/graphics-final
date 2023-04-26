@@ -266,7 +266,6 @@ function updateModelViewMatrix(directionVector = [0, 0, 0]) {
     minDistVec = vec3.fromValues(0, self.height, 0);
     collision = checkCollision([0, GRAVITY*2, 0], self.pos);
     if (collision) {
-        console.log('collision')
         vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec))
     } else {
         vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
