@@ -623,4 +623,3 @@ function line_seg_triangle_intersection(p, vec, a, b, c) {
     // Return the intersection
     return p;
 }
-
