@@ -44,7 +44,7 @@ function doMovement() {
         directionVector[0] = -MOVEMENTSPEED;
     }
     
-    updateModelViewMatrix(directionVector);
+    updateViewMatrix(directionVector);
     
 
     // call again in 15ms

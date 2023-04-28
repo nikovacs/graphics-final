@@ -13,6 +13,9 @@ let gl;
 // quadTree variable
 let quadtree = null;
 
+// modelViewMatrix
+let modelViewMatrix = mat4.create();
+
 // Gravity constant
 const GRAVITY = 0.05;
 
@@ -48,7 +51,7 @@ window.addEventListener('load', function init() {
 
     // Set initial values of uniforms
     updateProjectionMatrix();
-    updateModelViewMatrix();
+    updateViewMatrix();
 });
 
 
@@ -63,7 +66,7 @@ function initProgram() {
         precision mediump float;
 
         // Matrices
-        //uniform mat4 uViewMatrix;
+        uniform mat4 uViewMatrix;
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
@@ -82,7 +85,7 @@ function initProgram() {
         out vec2 vTexCoord;
 
         void main() {
-            mat4 mv = uModelViewMatrix;// * uViewMatrix;
+            mat4 mv = uModelViewMatrix * uViewMatrix;
             vec4 P = mv * aPosition;
 
             vNormalVector = mat3(mv) * aNormal;
@@ -101,6 +104,7 @@ function initProgram() {
         precision mediump float;
 
         uniform sampler2D uTexture;
+        uniform bool uUseTexture;
 
         // Light and material properties
         const vec3 lightColor = vec3(1, 1, 1);
@@ -136,7 +140,12 @@ function initProgram() {
             }
             
             // Compute final color
-            vec4 color = texture(uTexture, vTexCoord);// * materialColor;
+            vec4 color;
+            if (uUseTexture) {
+                color = texture(uTexture, vTexCoord);
+            } else {
+                color = uMaterialColor;
+            }
 
             // Compute final color
             fragColor.rgb = lightColor * (
@@ -157,9 +166,11 @@ function initProgram() {
 
     // Get the uniform indices
     program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
+    program.uViewMatrix = gl.getUniformLocation(program, "uViewMatrix")
     program.uProjectionMatrix = gl.getUniformLocation(program, 'uProjectionMatrix');
     program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
     program.uTexture = gl.getUniformLocation(program, 'uTexture');
+    program.uUseTexture = gl.getUniformLocation(program, 'uUseTexture');
 
     return program;
 }
@@ -191,6 +202,7 @@ function initBuffers() {
                     spawnPlayer();
                     generateQuadTree();
                     onWindowResize();
+                    [gl.characterVao, gl.characterTorso] = initCharacter();
                     render();
                     doMovement();
                 })
@@ -213,17 +225,36 @@ function updateProjectionMatrix() {
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    // draw players
+    gl.uniform1i(gl.program.uUseTexture, false);
+    gl.bindVertexArray(gl.characterVao);
+
+    // renderCharacter(gl.characterTorso, mat4.create(), {
+    //     rot: [0, 0, 0],
+    //     pos: [4.1855, -0.574, -1.51]
+    // });
+    renderCharacter(gl.characterTorso, mat4.fromRotationTranslationScale(
+        mat4.create(),
+        quat.fromEuler(quat.create(), 0, 0, 0),
+        vec3.fromValues(0, 0, 0),
+        vec3.fromValues(100, 100, 100)
+        )
+    )
+
+    // load world
+    gl.uniform1i(gl.program.uUseTexture, true);
+    gl.uniform4fv(gl.program.uMaterialColor, [1, 1, 1, 1]);
+    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, modelViewMatrix);
     for (let model of gl.models) {
         gl.bindVertexArray(model.vao);
         gl.uniform1i(gl.program.uTexture, model.idx);
         gl.activeTexture(gl.TEXTURE0 + model.idx);
         gl.bindTexture(gl.TEXTURE_2D, model.texture);
-
-        // // gl.uniform4fv(gl.program.uMaterialColor, model.materialColor);
         gl.drawElements(model.drawMode, model.numElements, gl.UNSIGNED_SHORT, 0);
     }
-    gl.bindVertexArray(null);
     gl.bindTexture(gl.TEXTURE_2D, null);
+
+    gl.bindVertexArray(null);
 
     window.requestAnimationFrame(render);
 }
@@ -242,7 +273,8 @@ function onWindowResize() {
  * Updates modelViewMatrix by translating it along a vector.
  * @param {Array || glMatrix.vec3} directionVector 
  */
-function updateModelViewMatrix(directionVector = [0, 0, 0]) {
+function updateViewMatrix(directionVector = [0, 0, 0]) {
+    // modelViewMatrix = mat4.create();
     let mv = mat4.create();
     mat4.rotateX(mv, mv, degToRad(self.rot[0]))
     mat4.rotateY(mv, mv, degToRad(self.rot[1]))
@@ -269,7 +301,7 @@ function updateModelViewMatrix(directionVector = [0, 0, 0]) {
     }
 
     mat4.translate(mv, mv, self.pos);
-    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mv);
+    gl.uniformMatrix4fv(gl.program.uViewMatrix, false, mv);
 }
 
 /**
@@ -328,18 +360,10 @@ function checkCollision(directionVector, point) {
     return null;
 }
 
-// function tryGravity() {
-//     // check once at double distance and again at the normal distance
-//     let minDistVec = vec3.fromValues(0, self.height, 0);
-//     let collision = checkCollision([0, GRAVITY*2, 0], self.pos);
-//     if (collision) {
-//         vec3.add(self.pos, vec3.negate(collision, collision), vec3.negate(minDistVec, minDistVec));
-//         return;
-//     }
-//     vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
-
-// }
-
+/**
+ * This function attempts to move the player downwards
+ * unless there is a collision with the ground
+ */
 function tryGravity() {
     if (quadtree === null) { return; }
     let collisions = [];

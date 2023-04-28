@@ -1,59 +1,20 @@
-// This is a WebGL example that demonstrates basic hierarchial modeling with
-// a robot arm.
-'use strict';
+// function getScene(){
 
-// Global WebGL context variable
-let gl;
+// }
 
-
-// Once the document is fully loaded run this init function.
-window.addEventListener('load', function init() {
-    // Get the HTML5 canvas object from it's ID
-    const canvas = document.getElementById('webgl-canvas');
-    if (!canvas) { window.alert('Could not find #webgl-canvas'); return; }
-
-    // Get the WebGL context (save into a global variable)
-    gl = canvas.getContext('webgl2', {premultipliedAlpha:false});
-    if (!gl) { window.alert("WebGL isn't available"); return; }
-
-    // Configure WebGL
-    gl.viewport(0, 0, canvas.width, canvas.height); // this is the region of the canvas we want to draw on (all of it)
-    gl.clearColor(0.0, 0.0, 0.0, 0.0); // setup the background color with red, green, blue, and alpha
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-
-    // Initialize the WebGL program and data
-    gl.program = initProgram();
-    [gl.vao, gl.scene] = initScene();
-    window.addEventListener('resize', onWindowResize);
-    onWindowResize();
-    initEvents();
-    
-    // Set initial values of uniforms
-    gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, mat4.create());
-    gl.uniform4fv(gl.program.uLight, [0, 5, 10, 1]);
-    
-    // Start rendering loop
-    render();
-});
-
-function getScene(){
-
-}
-
-function initEvents(){
-    window.addEventListener('keydown', function (e) {
-        if (e.code === "ArrowUp") {
-            walk()
-        }
-    }
-    )
-    window.addEventListener('keydown', function (e) {
-        if (e.code === "KeyW") {
-            wave()
-        }
-    })
-}
+// function initEvents(){
+//     window.addEventListener('keydown', function (e) {
+//         if (e.code === "ArrowUp") {
+//             walk()
+//         }
+//     }
+//     )
+//     window.addEventListener('keydown', function (e) {
+//         if (e.code === "KeyW") {
+//             wave()
+//         }
+//     })
+// }
 
 
 /**
@@ -62,7 +23,7 @@ function initEvents(){
  * 
  * Returns the VAO and the root scene node.
  */
-function initScene() {
+function initCharacter() {
     // Colors
     let shirt = [0.0, 0.5, 0.0, 1.0];
     let jeans = [0.06, 0.3, 0.55, 1.0];
@@ -145,125 +106,128 @@ function initScene() {
 }
 
 
-/**
- * Initializes the WebGL program.
- */
-function initProgram() {
-    // Compile shaders
-    // Vertex Shader
-    let vert_shader = compileShader(gl, gl.VERTEX_SHADER,
-        `#version 300 es
-        precision mediump float;
+// /**
+//  * Initializes the WebGL program.
+//  */
+// function initProgram() {
+//     // Compile shaders
+//     // Vertex Shader
+//     let vert_shader = compileShader(gl, gl.VERTEX_SHADER,
+//         `#version 300 es
+//         precision mediump float;
 
-        uniform mat4 uModelViewMatrix;
-        uniform mat4 uProjectionMatrix;
-        uniform vec4 uLight;
+//         uniform mat4 uModelViewMatrix;
+//         uniform mat4 uProjectionMatrix;
+//         uniform vec4 uLight;
 
-        in vec4 aPosition;
-        in vec3 aNormal;
+//         in vec4 aPosition;
+//         in vec3 aNormal;
 
-        out vec3 vNormalVector;
-        out vec3 vLightVector;
-        out vec3 vEyeVector;
+//         out vec3 vNormalVector;
+//         out vec3 vLightVector;
+//         out vec3 vEyeVector;
 
-        void main() {
-            vec4 P = uModelViewMatrix * aPosition;
-            vNormalVector = mat3(uModelViewMatrix) * aNormal;
-            vLightVector = uLight.w == 1.0 ? P.xyz - uLight.xyz : uLight.xyz;
-            vEyeVector = P.xyz;
-            gl_Position = uProjectionMatrix * P;
-        }`
-    );
-    // Fragment Shader - Phong Shading and Reflections
-    let frag_shader = compileShader(gl, gl.FRAGMENT_SHADER,
-        `#version 300 es
-        precision mediump float;
+//         void main() {
+//             vec4 P = uModelViewMatrix * aPosition;
+//             vNormalVector = mat3(uModelViewMatrix) * aNormal;
+//             vLightVector = uLight.w == 1.0 ? P.xyz - uLight.xyz : uLight.xyz;
+//             vEyeVector = P.xyz;
+//             gl_Position = uProjectionMatrix * P;
+//         }`
+//     );
+//     // Fragment Shader - Phong Shading and Reflections
+//     let frag_shader = compileShader(gl, gl.FRAGMENT_SHADER,
+//         `#version 300 es
+//         precision mediump float;
 
-        // Light and material properties
-        const vec3 lightColor = vec3(1, 1, 1);
-        uniform vec4 uMaterialColor;
-        const float materialAmbient = 0.2;
-        const float materialDiffuse = 0.5;
-        const float materialShininess = 10.0;
+//         // Light and material properties
+//         const vec3 lightColor = vec3(1, 1, 1);
+//         uniform vec4 uMaterialColor;
+//         const float materialAmbient = 0.2;
+//         const float materialDiffuse = 0.5;
+//         const float materialShininess = 10.0;
 
-        // Vectors (varying variables from vertex shader)
-        in vec3 vNormalVector;
-        in vec3 vLightVector;
-        in vec3 vEyeVector;
+//         // Vectors (varying variables from vertex shader)
+//         in vec3 vNormalVector;
+//         in vec3 vLightVector;
+//         in vec3 vEyeVector;
 
-        out vec4 fragColor;
+//         out vec4 fragColor;
 
-        void main() {
-            // Normalize vectors
-            vec3 N = normalize(vNormalVector);
-            vec3 L = normalize(vLightVector);
-            vec3 E = normalize(vEyeVector);
+//         void main() {
+//             // Normalize vectors
+//             vec3 N = normalize(vNormalVector);
+//             vec3 L = normalize(vLightVector);
+//             vec3 E = normalize(vEyeVector);
 
-            // Compute lighting
-            float diffuse = dot(-L, N);
-            float specular = 0.0;
-            if (diffuse < 0.0) {
-                diffuse = 0.0;
-            } else {
-                vec3 R = reflect(L, N);
-                specular = pow(max(dot(R, E), 0.0), materialShininess);
-            }
+//             // Compute lighting
+//             float diffuse = dot(-L, N);
+//             float specular = 0.0;
+//             if (diffuse < 0.0) {
+//                 diffuse = 0.0;
+//             } else {
+//                 vec3 R = reflect(L, N);
+//                 specular = pow(max(dot(R, E), 0.0), materialShininess);
+//             }
             
-            // Compute final color
-            fragColor.rgb = lightColor * (
-                (materialAmbient + materialDiffuse * diffuse) * uMaterialColor.rgb + specular
-            );
-            fragColor.a = uMaterialColor.a;
-        }`
-    );
+//             // Compute final color
+//             fragColor.rgb = lightColor * (
+//                 (materialAmbient + materialDiffuse * diffuse) * uMaterialColor.rgb + specular
+//             );
+//             fragColor.a = uMaterialColor.a;
+//         }`
+//     );
 
-    // Link the shaders into a program and use them with the WebGL context
-    let program = linkProgram(gl, vert_shader, frag_shader);
-    gl.useProgram(program);
+//     // Link the shaders into a program and use them with the WebGL context
+//     let program = linkProgram(gl, vert_shader, frag_shader);
+//     gl.useProgram(program);
     
 
-    // Get the uniform indices
-    program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
-    program.uProjectionMatrix = gl.getUniformLocation(program, 'uProjectionMatrix');
-    program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
-    program.uLight = gl.getUniformLocation(program, 'uLight');
+//     // Get the uniform indices
+//     program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
+//     program.uProjectionMatrix = gl.getUniformLocation(program, 'uProjectionMatrix');
+//     program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
+//     program.uLight = gl.getUniformLocation(program, 'uLight');
 
-    return program;
-}
-
-const modelViewMatrix = mat4.create();
+//     return program;
+// }
 
 /**
  * Render the scene.
  */
-function render(ms) {
-    // Clear
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (!ms) { ms = performance.now(); }
-    gl.time_factor = ms*Math.PI/1000;
+// function render(ms) {
+//     // Clear
+//     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+//     if (!ms) { ms = performance.now(); }
+//     gl.time_factor = ms*Math.PI/1000;
     
-    // Our scene uses a single VAO for all objects (may not always be true!)
-    gl.bindVertexArray(gl.vao);
+//     // Our scene uses a single VAO for all objects (may not always be true!)
+//     gl.bindVertexArray(gl.vao);
 
-    renderNode(gl.scene, modelViewMatrix)
+//     renderNode(gl.scene, modelViewMatrix)
     
 
-    // Cleanup
-    gl.bindVertexArray(null);
+//     // Cleanup
+//     gl.bindVertexArray(null);
 
-    // Animate
-    window.requestAnimationFrame(render);
-}
+//     // Animate
+//     window.requestAnimationFrame(render);
+// }
 
 /**
  * Render a node in the scene graph. If it has children, this is recursively
  * called on those children.
  * @param {object} node node to render
  * @param {object} mv current model view matrix (not including this node)
+ * @param {object} playerInfo object containing information about the player,
+ *     including the current position and rotation
  */
-function renderNode(node, mv) {
+function renderCharacter(node, mv) {
     // Compute global transformation from node's local transformation
     mat4.multiply(node.temp, mv, node.transform)
+
+    // log xyz coords of node.temp
+    console.log(node.temp[12], node.temp[13], node.temp[14])
 
     // Update the model view matrix uniform
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, node.temp);
@@ -276,30 +240,30 @@ function renderNode(node, mv) {
 
     // Render all child nodes
     for (let child of node.children) {
-        renderNode(child, node.temp)
+        renderCharacter(child, node.temp)
     }
 }
 
 /**
  * Keep the canvas sized to the window.
  */
-function onWindowResize() {
-    let size = Math.min(window.innerWidth, window.innerHeight);
-    gl.canvas.width = gl.canvas.height = size;
-    gl.canvas.style.width = gl.canvas.style.height = size + 'px';
-    gl.viewport(0, 0, size, size);
-    updateProjectionMatrix();
-}
+// function onWindowResize() {
+//     let size = Math.min(window.innerWidth, window.innerHeight);
+//     gl.canvas.width = gl.canvas.height = size;
+//     gl.canvas.style.width = gl.canvas.style.height = size + 'px';
+//     gl.viewport(0, 0, size, size);
+//     updateProjectionMatrix();
+// }
 
 /**
  * Updates the projection matrix.
  */
-function updateProjectionMatrix() {
-    let aspect = gl.canvas.width / gl.canvas.height;
-    let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, 10);
-    mat4.translate(p, p, [0, -0.1, -2]); // move the camera back by 1 so origin is visible
-    gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
-}
+// function updateProjectionMatrix() {
+//     let aspect = gl.canvas.width / gl.canvas.height;
+//     let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, 10);
+//     mat4.translate(p, p, [0, -0.1, -2]); // move the camera back by 1 so origin is visible
+//     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
+// }
 
 
 //////////////////// SCENE GRAPH FUNCTIONS ////////////////////
@@ -394,8 +358,6 @@ function wave() {
     let right_arm = gl.scene.children[4]
     right_arm.rotation[2] = 170 - 5*Math.sin(gl.time_factor*10)
     updateTransformation(right_arm)
-    render()
-    
 }
 
 /**
