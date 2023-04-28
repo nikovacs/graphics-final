@@ -30,13 +30,16 @@ function doMovement() {
     if (pressedKeys.has('w')) {
         // move forward
         directionVector[2] = MOVEMENTSPEED;
-    } else if (pressedKeys.has('s')) {
+    } 
+    if (pressedKeys.has('s')) {
         // move backward
         directionVector[2] = -MOVEMENTSPEED;
-    } else if (pressedKeys.has('a')) {
+    } 
+    if (pressedKeys.has('a')) {
         // move left
         directionVector[0] = MOVEMENTSPEED;
-    } else if (pressedKeys.has('d')) {
+    } 
+    if (pressedKeys.has('d')) {
         // move right
         directionVector[0] = -MOVEMENTSPEED;
     }
