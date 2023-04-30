@@ -29,6 +29,7 @@ function initCharacter() {
     let jeans = [0.06, 0.3, 0.55, 1.0];
     let skin  = [1.0, 0.85, 0.05, 1.0];
     let black = [0.0, 0.0, 0.0, 1.0];
+    let start_pos = [4.1855, -0.574, -1.51]
 
     // Create drawables to use for all parts
     // Note: cube() takes a list of width, height, and depth
@@ -50,12 +51,13 @@ function initCharacter() {
     // Create the scene graph of all of the body parts
 
     let head = createNode({
-        'position': [0, 0.09, 0],
+        'position': [0.01, 0.09, 0],
         'color': skin,
         'start': head_start,
         'count': head_count,
+        'rotation' :[0,0,0]
     });
-    setupListener(head, 'yes-angle', 0); // X angle
+    updateTransformation(head)
 
     let neck = createNode({
         'position': [0, 0.35/2, 0],
@@ -63,8 +65,11 @@ function initCharacter() {
         'start': neck_start,
         'count': neck_count,
         'children': [head],
+        'rotation' :[0,1,0]
+
     });
-    setupListener(neck, 'no-angle', 1); // Y angle
+    updateTransformation(neck)
+    // setupListener(neck, 'no-angle', 1); // Y angle
 
     let left_arm = createNode({
         'color': skin,
@@ -72,147 +77,41 @@ function initCharacter() {
         'origin': [0, 0.25/2, 0],
         'count': arm_count,
         'position': [-.12, .025, 0],
-    });
+        'rotation' :[0,0,0]
 
-    setupListener(left_arm, 'l-shoulder-x-angle', 2); // Z angle
+    });
+    updateTransformation(left_arm)
     let right_arm = copyNode(left_arm, {'position': [.12, .025, 0]});
-    setupListener(right_arm, 'r-shoulder-x-angle', 2)
+    updateTransformation(right_arm)
+
 
     let left_leg = createNode({
         'color': jeans,
         'start': leg_start,
-        'origin': [0, 0.55/2, 0],
+        'origin': [0, -0.35/2, 0],
         'count': leg_count,
         'position': [-.06, -0.55/2, 0],
+        'rotation' :[0,0,0]
+
     });
-    left_leg.rotation[0] = 5;
+    // left_leg.rotation[0] = 5;
     updateTransformation(left_leg);
-    // setupListener(left_leg, 'l-leg-x-angle', 0); // X angle
     let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0]});
-    right_leg.rotation[0] = -5
+    // right_leg.rotation[0] = -5
     updateTransformation(right_leg)
-    // setupListener(right_leg, 'r-leg-x-angle', 0)
-    
     let torso = createNode({
         'color': shirt,
         'start': torso_start,
         'count': torso_count,
         'children': [neck, left_leg, right_leg, left_arm, right_arm],
+        'rotation' :[0,1,0]
+
     });
-    setupListener(torso, 'body-angle', 1); // Y angle
+    updateTransformation(torso)
 
     // Return the information
     return [vao, torso];
 }
-
-
-// /**
-//  * Initializes the WebGL program.
-//  */
-// function initProgram() {
-//     // Compile shaders
-//     // Vertex Shader
-//     let vert_shader = compileShader(gl, gl.VERTEX_SHADER,
-//         `#version 300 es
-//         precision mediump float;
-
-//         uniform mat4 uModelViewMatrix;
-//         uniform mat4 uProjectionMatrix;
-//         uniform vec4 uLight;
-
-//         in vec4 aPosition;
-//         in vec3 aNormal;
-
-//         out vec3 vNormalVector;
-//         out vec3 vLightVector;
-//         out vec3 vEyeVector;
-
-//         void main() {
-//             vec4 P = uModelViewMatrix * aPosition;
-//             vNormalVector = mat3(uModelViewMatrix) * aNormal;
-//             vLightVector = uLight.w == 1.0 ? P.xyz - uLight.xyz : uLight.xyz;
-//             vEyeVector = P.xyz;
-//             gl_Position = uProjectionMatrix * P;
-//         }`
-//     );
-//     // Fragment Shader - Phong Shading and Reflections
-//     let frag_shader = compileShader(gl, gl.FRAGMENT_SHADER,
-//         `#version 300 es
-//         precision mediump float;
-
-//         // Light and material properties
-//         const vec3 lightColor = vec3(1, 1, 1);
-//         uniform vec4 uMaterialColor;
-//         const float materialAmbient = 0.2;
-//         const float materialDiffuse = 0.5;
-//         const float materialShininess = 10.0;
-
-//         // Vectors (varying variables from vertex shader)
-//         in vec3 vNormalVector;
-//         in vec3 vLightVector;
-//         in vec3 vEyeVector;
-
-//         out vec4 fragColor;
-
-//         void main() {
-//             // Normalize vectors
-//             vec3 N = normalize(vNormalVector);
-//             vec3 L = normalize(vLightVector);
-//             vec3 E = normalize(vEyeVector);
-
-//             // Compute lighting
-//             float diffuse = dot(-L, N);
-//             float specular = 0.0;
-//             if (diffuse < 0.0) {
-//                 diffuse = 0.0;
-//             } else {
-//                 vec3 R = reflect(L, N);
-//                 specular = pow(max(dot(R, E), 0.0), materialShininess);
-//             }
-            
-//             // Compute final color
-//             fragColor.rgb = lightColor * (
-//                 (materialAmbient + materialDiffuse * diffuse) * uMaterialColor.rgb + specular
-//             );
-//             fragColor.a = uMaterialColor.a;
-//         }`
-//     );
-
-//     // Link the shaders into a program and use them with the WebGL context
-//     let program = linkProgram(gl, vert_shader, frag_shader);
-//     gl.useProgram(program);
-    
-
-//     // Get the uniform indices
-//     program.uModelViewMatrix = gl.getUniformLocation(program, 'uModelViewMatrix');
-//     program.uProjectionMatrix = gl.getUniformLocation(program, 'uProjectionMatrix');
-//     program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
-//     program.uLight = gl.getUniformLocation(program, 'uLight');
-
-//     return program;
-// }
-
-/**
- * Render the scene.
- */
-// function render(ms) {
-//     // Clear
-//     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-//     if (!ms) { ms = performance.now(); }
-//     gl.time_factor = ms*Math.PI/1000;
-    
-//     // Our scene uses a single VAO for all objects (may not always be true!)
-//     gl.bindVertexArray(gl.vao);
-
-//     renderNode(gl.scene, modelViewMatrix)
-    
-
-//     // Cleanup
-//     gl.bindVertexArray(null);
-
-//     // Animate
-//     window.requestAnimationFrame(render);
-// }
 
 /**
  * Render a node in the scene graph. If it has children, this is recursively
@@ -372,3 +271,18 @@ function updateTransformation(node) {
         node.origin
     )
 }
+
+
+// function start_player(character, position){
+//     for (let child of character.children){
+//         for (let i = 0; i < child.position.length; i++){
+//             console.log(i)
+//             character.position[i]=position[i]
+//             child.position[i]= position[i]
+//         }
+//         updateTransformation(character)
+//         updateTransformation(child)
+
+//     }
+
+// }

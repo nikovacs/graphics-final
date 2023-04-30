@@ -391,5 +391,7 @@ function tryGravity() {
 
 function spawnPlayer() {
     self.pos = [4.1855, -0.574, -1.51]
+    // self.pos = [0,0,-1] // To see the character
     self.rot [0, 0, 0]
 }
+
