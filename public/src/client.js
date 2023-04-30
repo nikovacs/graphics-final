@@ -85,7 +85,7 @@ function initProgram() {
         out vec2 vTexCoord;
 
         void main() {
-            mat4 mv = uModelViewMatrix * uViewMatrix;
+            mat4 mv =  uViewMatrix * uModelViewMatrix;
             vec4 P = mv * aPosition;
 
             vNormalVector = mat3(mv) * aNormal;
@@ -234,10 +234,10 @@ function render() {
     //     pos: [4.1855, -0.574, -1.51]
     // });
     renderCharacter(gl.characterTorso, mat4.fromRotationTranslationScale(
-        mat4.create(),
-        quat.fromEuler(quat.create(), 0, 0, 0),
-        vec3.fromValues(0, 0, 0),
-        vec3.fromValues(100, 100, 100)
+            mat4.create(),
+            quat.fromEuler(quat.create(), 0, 0, 0),
+            vec3.fromValues(-4, 0.5, 1.50),
+            vec3.fromValues(1, 1, 1)
         )
     )
 
