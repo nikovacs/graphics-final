@@ -71,14 +71,14 @@ function initCharacter() {
         'id':'lleg',
         'color': jeans,
         'start': leg_start,
-        'origin': [0, -0.35/2, 0],
+        'origin': [0, 0.35/2, 0],
         'count': leg_count,
         'position': [-.06, -0.55/2, 0],
-        'rotation' :[5,0,0]
+        'rotation' :[0,0,0]
 
     });
     updateTransformation(left_leg);
-    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0], 'id':'rleg','rotation':[-5,0,0]});
+    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0], 'id':'rleg','rotation':[0,0,0]});
     updateTransformation(right_leg)
     let torso = createNode({
         'id':'torso',
@@ -173,28 +173,6 @@ function renderCharacter(node, mv) {
     }
 }
 
-/**
- * Keep the canvas sized to the window.
- */
-// function onWindowResize() {
-//     let size = Math.min(window.innerWidth, window.innerHeight);
-//     gl.canvas.width = gl.canvas.height = size;
-//     gl.canvas.style.width = gl.canvas.style.height = size + 'px';
-//     gl.viewport(0, 0, size, size);
-//     updateProjectionMatrix();
-// }
-
-/**
- * Updates the projection matrix.
- */
-// function updateProjectionMatrix() {
-//     let aspect = gl.canvas.width / gl.canvas.height;
-//     let p = mat4.perspective(mat4.create(), Math.PI / 4, aspect, 0.1, 10);
-//     mat4.translate(p, p, [0, -0.1, -2]); // move the camera back by 1 so origin is visible
-//     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
-// }
-
-
 //////////////////// SCENE GRAPH FUNCTIONS ////////////////////
 
 /**
@@ -270,27 +248,38 @@ function setupListener(node, angle, value) {
 }
 
 function walk() {
-
-    self.animation = "walk"
     let left_leg = gl.characterNode.children[0].children[0].children[0]
-    left_leg.rotation[0] = left_leg.rotation[0]*-1
+    left_leg.rotation[0] = Math.sin(gl.time_factor) * 45
     updateTransformation(left_leg);
     let right_leg = gl.characterNode.children[0].children[0].children[1]
-    right_leg.rotation[0] = right_leg.rotation[0]*-1
+    right_leg.rotation[0] = Math.sin(gl.time_factor) * -45
     updateTransformation(right_leg);
+}
+
+function resetLegs() {
+    let left_leg = gl.characterNode.children[0].children[0].children[0]
+    if (left_leg.rotation[0] !== 0) {
+        left_leg.rotation[0] = 0
+        updateTransformation(left_leg);
+    }
+    let right_leg = gl.characterNode.children[0].children[0].children[1]
+    if (right_leg.rotation[0] !== 0) {
+        right_leg.rotation[0] = 0
+        updateTransformation(right_leg);
+    }
 }
 
 function wave() {
     let right_arm = gl.characterNode.children[0].children[0].children[3]
     right_arm.rotation[2] = 170 - 5*Math.sin(gl.time_factor*10)
     updateTransformation(right_arm)
-
 }
-function lowerhand() {
+
+function resetArm() {
     let right_arm = gl.characterNode.children[0].children[0].children[3]
+    if (right_arm.rotation[2] === 0) { return; }
     right_arm.rotation[2] = 0
     updateTransformation(right_arm)
-
 }
 
 /**

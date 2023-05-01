@@ -32,8 +32,8 @@ socket.on("updatePlayerRotation", (msg) => {
 });
 
 socket.on("updatePlayerAnimation", (msg) => {
-    console.log(`Updating player ${msg.id}`)
-    players[id].animation = msg.animation;
+    // console.log(`Updating player ${msg.id}`)
+    players[msg.id].animation = msg.animation;
 });
 
 // interval 20 times a second
@@ -41,6 +41,7 @@ socket.on("updatePlayerAnimation", (msg) => {
 setInterval(() => {
     socket.emit("updatePlayerPosition", self.pos);
     socket.emit("updatePlayerRotation", self.rot);
+    socket.emit("updatePlayerAnimation", self.animation);
 }, 50);
 
 

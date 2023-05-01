@@ -245,7 +245,14 @@ function render(ms) {
 
     // iterate over all keys in the players object
     for (const id in players) {
-        // console.log(id)
+        if (players[id].animation === "walk") {
+            walk();
+        } else if (players[id].animation === "wave") {
+            wave();
+        } else if (players[id].animation === "idle") {
+            resetArm();
+            resetLegs();
+        }
         // draw a player
         renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
             mat4.create(),

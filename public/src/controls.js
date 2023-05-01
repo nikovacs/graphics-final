@@ -27,27 +27,17 @@ function setDefaultListeners() {
     });
 }
 
-function animation() {
-    if (pressedKeys.has('e')) {
-        wave();
-    }
-
-
-}
+// }
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
     if (pressedKeys.has('w')) {
         // move forward
         directionVector[2] = MOVEMENTSPEED;
-        walk()
-        lowerhand()
     } 
     if (pressedKeys.has('s')) {
         // move backward
         directionVector[2] = -MOVEMENTSPEED;
-        walk()
-        lowerhand()
     } 
     if (pressedKeys.has('a')) {
         // move left
@@ -59,7 +49,15 @@ function doMovement() {
     }
     
     updateViewMatrix(directionVector);
-    
+
+    if (directionVector.some((x) => x !== 0)) {
+        self.animation = "walk";
+    } else if (pressedKeys.has('e')) {
+        self.animation = "wave";
+        setTimeout(() => self.animation = "idle", 2000);
+    } else if (self.animation === "walk") {
+        self.animation = "idle";
+    }    
 
     // call again in 15ms
     setTimeout(() => this.doMovement(), 15);
