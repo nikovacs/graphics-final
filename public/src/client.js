@@ -222,9 +222,10 @@ function updateProjectionMatrix() {
     gl.uniformMatrix4fv(gl.program.uProjectionMatrix, false, p);
 }
 
-function render() {
+function render(ms) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+    if (!ms) { ms = performance.now(); }
+    gl.time_factor = ms*2*Math.PI/1000;
     // draw players
     gl.uniform1i(gl.program.uUseTexture, false);
     gl.bindVertexArray(gl.characterVao);

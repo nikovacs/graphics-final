@@ -40,6 +40,8 @@ function initCharacter() {
     let [head_start, head_count] = cylinder(vertices, normals, indices, 0.16, 0.16);
     let [leg_start, leg_count] = cube(vertices, normals, indices, [0.09, 0.2, 0.1]);
     let [arm_start, arm_count] = cube(vertices, normals, indices, [0.06, 0.30, 0.1]);
+    let [eye_start, eye_count] = cube(vertices, normals, indices, [0.05, 0.025, 0.03]);
+    let [mouth_start, mouth_count] = cube(vertices, normals, indices, [0.10, 0.015, 0.03]);
 
 
     // Create the VAO
@@ -51,6 +53,7 @@ function initCharacter() {
     // Create the scene graph of all of the body parts
 
     let left_arm = createNode({
+        'id':'larm',
         'color': skin,
         'start': arm_start,
         'origin': [0, 0.25/2, 0],
@@ -60,25 +63,25 @@ function initCharacter() {
 
     });
     updateTransformation(left_arm)
-    let right_arm = copyNode(left_arm, {'position': [.12, .025, 0]});
+    let right_arm = copyNode(left_arm, {'position': [.12, .025, 0], 'id':'rarm'});
     updateTransformation(right_arm)
 
 
     let left_leg = createNode({
+        'id':'lleg',
         'color': jeans,
         'start': leg_start,
         'origin': [0, -0.35/2, 0],
         'count': leg_count,
         'position': [-.06, -0.55/2, 0],
-        'rotation' :[0,0,0]
+        'rotation' :[5,0,0]
 
     });
-    // left_leg.rotation[0] = 5;
     updateTransformation(left_leg);
-    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0]});
-    // right_leg.rotation[0] = -5
+    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0], 'id':'rleg','rotation':[-5,0,0]});
     updateTransformation(right_leg)
     let torso = createNode({
+        'id':'torso',
         'position': [0, -0.075, 0],
         'color': shirt,
         'start': torso_start,
@@ -90,6 +93,7 @@ function initCharacter() {
     updateTransformation(torso)
 
     let neck = createNode({
+        'id':'neck',
         'position': [0, -0.35/2, 0],
         'color': skin,
         'start': neck_start,
@@ -99,17 +103,41 @@ function initCharacter() {
 
     });
     updateTransformation(neck)
-    // setupListener(neck, 'no-angle', 1); // Y angle
+
+    let left_eye = createNode({
+        'id': 'l-eye', 
+        'position': [0.03, 0.04, -0.07],
+        'color': black,
+        'start': eye_start,
+        'count': eye_count,
+        'rotation' :[0,0,0]
+    });
+    updateTransformation(left_eye)
+    let right_eye = copyNode(left_eye, {'position': [-0.03, 0.04, -.07], 'id':'r-eye'});
+    updateTransformation(right_eye)
+
+    let mouth = createNode({
+        'id': 'mouth', 
+        'position': [0, -0.02, -0.07],
+        'color': black,
+        'start': mouth_start,
+        'count': mouth_count,
+        'rotation' :[0,0,0]
+    });
+    updateTransformation(mouth)
 
     let head = createNode({
+        'id': 'head', 
         'position': [0.01, 0.09, 0],
         'color': skin,
         'start': head_start,
         'count': head_count,
-        "children": [neck],
+        "children": [neck, left_eye, right_eye, mouth],
         'rotation' :[0,0,0]
     });
     updateTransformation(head)
+
+
 
     // Return the information
     return [vao, head];
@@ -242,23 +270,27 @@ function setupListener(node, angle, value) {
 }
 
 function walk() {
-    let left_leg = gl.scene.children[1]
+
+    self.animation = "walk"
+    let left_leg = gl.characterNode.children[0].children[0].children[0]
     left_leg.rotation[0] = left_leg.rotation[0]*-1
     updateTransformation(left_leg);
-    let right_leg = gl.scene.children[2]
+    let right_leg = gl.characterNode.children[0].children[0].children[1]
     right_leg.rotation[0] = right_leg.rotation[0]*-1
     updateTransformation(right_leg);
-    let right_arm = gl.scene.children[4]
-    right_arm.rotation[2] = 0
-    updateTransformation(right_arm)
-    render()
-    
 }
 
 function wave() {
-    let right_arm = gl.scene.children[4]
+    let right_arm = gl.characterNode.children[0].children[0].children[3]
     right_arm.rotation[2] = 170 - 5*Math.sin(gl.time_factor*10)
     updateTransformation(right_arm)
+
+}
+function lowerhand() {
+    let right_arm = gl.characterNode.children[0].children[0].children[3]
+    right_arm.rotation[2] = 0
+    updateTransformation(right_arm)
+
 }
 
 /**

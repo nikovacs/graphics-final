@@ -5,6 +5,9 @@ function setDefaultListeners() {
     // Set the default listeners for movement
     function monitorKeydown(e) {
         pressedKeys.add(e.key);
+        if (pressedKeys.has('e')){
+            wave()
+        }
     }
     function monitorKeyup(e) {
         pressedKeys.delete(e.key);
@@ -24,16 +27,27 @@ function setDefaultListeners() {
     });
 }
 
+function animation(){
+    if (pressedKeys.has('e')){
+        wave();
+    }
+
+
+}
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
     if (pressedKeys.has('w')) {
         // move forward
         directionVector[2] = MOVEMENTSPEED;
+        walk()
+        lowerhand()
     } 
     if (pressedKeys.has('s')) {
         // move backward
         directionVector[2] = -MOVEMENTSPEED;
+        walk()
+        lowerhand()
     } 
     if (pressedKeys.has('a')) {
         // move left
