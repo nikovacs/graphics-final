@@ -410,6 +410,9 @@ function tryGravity() {
     vec3.add(self.pos, self.pos, [0, GRAVITY, 0])
 }
 
+/**
+ * Spawns player at the center of Makuvek Field.
+ */
 function spawnPlayer() {
     self.pos = [4.1855, -0.574, -1.51]
     // self.pos = [0,0,-1] // To see the character
