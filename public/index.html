@@ -32,28 +32,44 @@
             html {
                 overflow: hidden;
             }
-            #overlay {
+            #overlay1 {
                 position: absolute;
                 right: 10px;
                 bottom: 10px;
-                background-color: rgba(255, 255, 255, 0.7);
+                background-color: rgba(255, 255, 255, 0.6);
                 color: rgb(0, 0, 0);
                 font-family: monospace;
                 padding: 1em;
-                border-radius: 1em;
                 border: 5px solid rgb(8, 0, 90);
                 }
+            #overlay2 {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background-color: rgba(255, 255, 255, 0.6);
+            color: rgb(0, 0, 0);
+            font-family: monospace;
+            padding: 1em;
+            border: 3px solid rgb(8, 0, 90);
+            }
+            
         </style>
-        <div id="overlay">
-            <div>Controls<span></span></div>
-            <div>W: Forward<span></span></div>
-            <div>S: Backward<span></span></div>
-            <div>A: Left<span></span></div>
-            <div>D: Right<span></span></div>
-            <div>E: Wave<span></span></div>
-            <div>Mouse: Camera Movement<span></span></div>
-            <div>Click: Capture Cursor <span></span></div>
-          </div>
+        <div id="overlay1">
+            <div><b>CONTROLS</b><span></span></div>
+            <div><button><b>W</b></button> Forward<span></span></div>
+            <div><button><b>A</b></button> Left<span></span></div>
+            <div><button><b>S</b></button> Backward<span></span></div>
+            <div><button><b>D</b></button> Right<span></span></div>
+            <div><button><b>E</b></button> Wave<span></span></div>
+            <div><button><b>ESC</b></button> Exit<span></span></div>
+        </div>
+
+        <div id="overlay2">
+            <div><b>CURSOR CONTROLS</b><span></span></div>
+            <div><b>Mouse</b>: Camera Movement<span></span></div>
+            <div><b>Click</b>: Capture Cursor <span></span></div>
+        </div>
+          
     </head>
         <!-- Define the canvas to use for the WebGL example -->
         <canvas id="webgl-canvas" width="400" height="400">
