@@ -128,7 +128,7 @@ function initCharacter() {
 
     let head = createNode({
         'id': 'head', 
-        'position': [0.01, -0.09, 0],
+        'position': [0.01, -0.06, 0],
         'color': skin,
         'start': head_start,
         'count': head_count,
