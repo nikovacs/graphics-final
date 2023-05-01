@@ -202,7 +202,7 @@ function initBuffers() {
                     spawnPlayer();
                     generateQuadTree();
                     onWindowResize();
-                    [gl.characterVao, gl.characterTorso] = initCharacter();
+                    [gl.characterVao, gl.characterNode] = initCharacter();
                     render();
                     doMovement();
                 })
@@ -233,13 +233,26 @@ function render() {
     //     rot: [0, 0, 0],
     //     pos: [4.1855, -0.574, -1.51]
     // });
-    renderCharacter(gl.characterTorso, mat4.fromRotationTranslationScale(
+    // renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
+    //         mat4.create(),
+    //         quat.fromEuler(quat.create(), 0, -self.rot[1], 0),
+    //         // vec3.fromValues(-4.16, 0.57, 1.412),
+    //         vec3.negate(vec3.create(), self.pos),
+    //         vec3.fromValues(0.0375, 0.0375, 0.0375)
+    //     )
+    // )
+
+    // iterate over all keys in the players object
+    for (const id in players) {
+        // console.log(id)
+        // draw a player
+        renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
             mat4.create(),
-            quat.fromEuler(quat.create(), 0, 0, 0),
-            vec3.fromValues(-4, 0.5, 1.50),
-            vec3.fromValues(1, 1, 1)
-        )
-    )
+            quat.fromEuler(quat.create(), 0, -players[id].rot[1], 0),
+            vec3.negate(_temps[0], players[id].pos),
+            vec3.fromValues(0.0375, 0.0375, 0.0375)
+        ))
+    }
 
     // load world
     gl.uniform1i(gl.program.uUseTexture, true);

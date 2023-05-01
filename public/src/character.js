@@ -50,27 +50,6 @@ function initCharacter() {
 
     // Create the scene graph of all of the body parts
 
-    let head = createNode({
-        'position': [0.01, 0.09, 0],
-        'color': skin,
-        'start': head_start,
-        'count': head_count,
-        'rotation' :[0,0,0]
-    });
-    updateTransformation(head)
-
-    let neck = createNode({
-        'position': [0, 0.35/2, 0],
-        'color': skin,
-        'start': neck_start,
-        'count': neck_count,
-        'children': [head],
-        'rotation' :[0,1,0]
-
-    });
-    updateTransformation(neck)
-    // setupListener(neck, 'no-angle', 1); // Y angle
-
     let left_arm = createNode({
         'color': skin,
         'start': arm_start,
@@ -100,17 +79,40 @@ function initCharacter() {
     // right_leg.rotation[0] = -5
     updateTransformation(right_leg)
     let torso = createNode({
+        'position': [0, -0.075, 0],
         'color': shirt,
         'start': torso_start,
         'count': torso_count,
-        'children': [neck, left_leg, right_leg, left_arm, right_arm],
+        'children': [left_leg, right_leg, left_arm, right_arm],
         'rotation' :[0,1,0]
 
     });
     updateTransformation(torso)
 
+    let neck = createNode({
+        'position': [0, -0.35/2, 0],
+        'color': skin,
+        'start': neck_start,
+        'count': neck_count,
+        'children': [torso],
+        'rotation' :[0,1,0]
+
+    });
+    updateTransformation(neck)
+    // setupListener(neck, 'no-angle', 1); // Y angle
+
+    let head = createNode({
+        'position': [0.01, 0.09, 0],
+        'color': skin,
+        'start': head_start,
+        'count': head_count,
+        "children": [neck],
+        'rotation' :[0,0,0]
+    });
+    updateTransformation(head)
+
     // Return the information
-    return [vao, torso];
+    return [vao, head];
 }
 
 /**
@@ -126,7 +128,7 @@ function renderCharacter(node, mv) {
     mat4.multiply(node.temp, mv, node.transform)
 
     // log xyz coords of node.temp
-    console.log(node.temp[12], node.temp[13], node.temp[14])
+    // console.log(node.temp[12], node.temp[13], node.temp[14])
 
     // Update the model view matrix uniform
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, node.temp);

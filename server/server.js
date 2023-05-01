@@ -23,21 +23,19 @@ io.on("connection", (socket) => {
         onPlayerLogout(socket);
     });
 
-    socket.on("updatePlayerPosition", (x, y) => {
-        players[socket.id].x = x;
-        players[socket.id].y = y;
+    socket.on("updatePlayerPosition", (pos) => {
+        players[socket.id].pos = pos;
         socket.broadcast.emit("updatePlayerPosition", {
             id: socket.id,
-            x: x,
-            y: y,
+            pos: pos
         });
     });
 
-    socket.on("updatePlayerRotation", (y_rot) => {
-        players[socket.id].y_rot = y_rot;
+    socket.on("updatePlayerRotation", (rot) => {
+        players[socket.id].rot = rot;
         socket.broadcast.emit("updatePlayerRotation", {
             id: socket.id,
-            y_rot: y_rot
+            rot: rot
         });
     });
 
@@ -56,17 +54,14 @@ server.listen(port, () => {
 
 function onPlayerLogin(socket) {
     players[socket.id] = {
-        x: 0,
-        y: 0,
-        socket: socket,
-        y_rot: 0,
+        pos: [0, 0, 0],
+        rot: [0, 0, 0],
         animation: "idle"
     };
     socket.broadcast.emit("spawnPlayer", {
         id: socket.id,
-        x: 0,
-        y: 0,
-        y_rot: 0,
+        pos: players[socket.id].pos,
+        rot: players[socket.id].rot,
         animation: "idle"
     });
     // spawn exisitng players for the new player
@@ -77,9 +72,12 @@ function onPlayerLogin(socket) {
         }
         socket.emit("spawnPlayer", {
             id: id,
-            x: players[id].x,
-            y: players[id].y,
-            y_rot: players[id].y_rot,
+            // x: players[id].x,
+            // y: players[id].y,
+            // y_rot: players[id].y_rot,
+            // animation: players[id].animation
+            pos: players[id].pos,
+            rot: players[id].rot,
             animation: players[id].animation
         });
     }
