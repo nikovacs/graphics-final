@@ -10,9 +10,8 @@ socket.on('connect', function () {
 socket.on("spawnPlayer", (msg) => {
     console.log(`Spawning player ${msg.id}`)
     players[msg.id] = {
-        x: msg.x,
-        y: msg.y,
-        y_rot: msg.y_rot,
+        pos: msg.pos,
+        rot: msg.rot,
         animation: msg.animation
     };
 });
@@ -23,19 +22,25 @@ socket.on("despawnPlayer", (id) => {
 });
 
 socket.on("updatePlayerPosition", (msg) => {
-    console.log(`Updating player ${msg.id}`)
-    players[id].x = msg.x;
-    players[id].y = msg.y;
+    // console.log(`Updating player ${msg.id}`)
+    players[msg.id].pos = msg.pos
 });
 
 socket.on("updatePlayerRotation", (msg) => {
-    console.log(`Updating player ${msg.id}`)
-    players[id].y_rot = msg.y_rot;
+    // console.log(`Updating player ${msg.id}`)
+    players[msg.id].rot = msg.rot
 });
 
 socket.on("updatePlayerAnimation", (msg) => {
     console.log(`Updating player ${msg.id}`)
     players[id].animation = msg.animation;
 });
+
+// interval 20 times a second
+// inefficient as it updates when unnecessary
+setInterval(() => {
+    socket.emit("updatePlayerPosition", self.pos);
+    socket.emit("updatePlayerRotation", self.rot);
+}, 50);
 
 
