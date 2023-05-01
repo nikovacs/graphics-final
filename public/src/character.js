@@ -1,24 +1,6 @@
-// function getScene(){
-
-// }
-
-// function initEvents(){
-//     window.addEventListener('keydown', function (e) {
-//         if (e.code === "ArrowUp") {
-//             walk()
-//         }
-//     }
-//     )
-//     window.addEventListener('keydown', function (e) {
-//         if (e.code === "KeyW") {
-//             wave()
-//         }
-//     })
-// }
-
 
 /**
- * Create all components of the scene for the robot arm including the buffers,
+ * Create all components of the character as a scene graph including the buffers,
  * scene graph nodes, and the listeners for the sliders.
  * 
  * Returns the VAO and the root scene node.
@@ -29,7 +11,6 @@ function initCharacter() {
     let jeans = [0.06, 0.3, 0.55, 1.0];
     let skin  = [1.0, 0.85, 0.05, 1.0];
     let black = [0.0, 0.0, 0.0, 1.0];
-    let start_pos = [4.1855, -0.574, -1.51]
 
     // Create drawables to use for all parts
     // Note: cube() takes a list of width, height, and depth
@@ -50,10 +31,10 @@ function initCharacter() {
         "aNormal": [normals, 3],
     }, indices);
 
-    // Create the scene graph of all of the body parts
+    // Create the scene graph of all of the body parts for the character
 
     let left_arm = createNode({
-        'id':'larm',
+        'id':'l-arm',
         'color': skin,
         'start': arm_start,
         'origin': [0, 0.25/2, 0],
@@ -63,12 +44,12 @@ function initCharacter() {
 
     });
     updateTransformation(left_arm)
-    let right_arm = copyNode(left_arm, {'position': [.12, .025, 0], 'id':'rarm'});
+    let right_arm = copyNode(left_arm, {'position': [.12, .025, 0], 'id':'r-arm'});
     updateTransformation(right_arm)
 
 
     let left_leg = createNode({
-        'id':'lleg',
+        'id':'l-leg',
         'color': jeans,
         'start': leg_start,
         'origin': [0, 0.35/2, 0],
@@ -78,7 +59,7 @@ function initCharacter() {
 
     });
     updateTransformation(left_leg);
-    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0], 'id':'rleg','rotation':[0,0,0]});
+    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0], 'id':'r-leg','rotation':[0,0,0]});
     updateTransformation(right_leg)
     let torso = createNode({
         'id':'torso',
@@ -137,8 +118,6 @@ function initCharacter() {
     });
     updateTransformation(head)
 
-
-
     // Return the information
     return [vao, head];
 }
@@ -154,9 +133,6 @@ function initCharacter() {
 function renderCharacter(node, mv) {
     // Compute global transformation from node's local transformation
     mat4.multiply(node.temp, mv, node.transform)
-
-    // log xyz coords of node.temp
-    // console.log(node.temp[12], node.temp[13], node.temp[14])
 
     // Update the model view matrix uniform
     gl.uniformMatrix4fv(gl.program.uModelViewMatrix, false, node.temp);
@@ -204,9 +180,6 @@ function createNode(info) {
         'transform': mat4.create(),
 
         // Temporary matrix - used during rendering
-        // NOTE: could use the Object Pool Design Pattern instead
-        // https://egghead.io/blog/object-pool-design-pattern 
-        // That site even mentions game engines as a place to use it
         'temp': mat4.create(),
 
         // Optional - fixed color information
@@ -234,28 +207,23 @@ function copyNode(node, addl_info = {}) {
 }
 
 /**
- * Setup a listener for one of the scene nodes to change with one of the sliders.
- * Also updates the current transformation matrix.
- * @param {object} node the node in the scene graph
- * @param {string} id the HTML slider id
- * @param {number} angle 0, 1, or 2 for which angle the slider updates
+ * Walking animation for legs. 
+ * Called by movement in any direction
+ * Listeners for W, A, S, D will trigger this function
+ * Sets l-leg and r-leg rotations to be inverted 
  */
-
-
-function setupListener(node, angle, value) {
-    node.rotation[angle] = value;
-    updateTransformation(node);
-}
-
 function walk() {
     let left_leg = gl.characterNode.children[0].children[0].children[0]
-    left_leg.rotation[0] = Math.sin(gl.time_factor) * 45
-    updateTransformation(left_leg);
     let right_leg = gl.characterNode.children[0].children[0].children[1]
+    left_leg.rotation[0] = Math.sin(gl.time_factor) * 45
     right_leg.rotation[0] = Math.sin(gl.time_factor) * -45
+    updateTransformation(left_leg);
     updateTransformation(right_leg);
 }
 
+/**
+ * Resets l-leg and r-leg rotations to 0 when player is idle.  
+ */
 function resetLegs() {
     let left_leg = gl.characterNode.children[0].children[0].children[0]
     if (left_leg.rotation[0] !== 0) {
@@ -269,12 +237,19 @@ function resetLegs() {
     }
 }
 
+/**
+ * Waving animation for r-arm
+ * Sets the right arm rotation to a value based on time factor
+ */
 function wave() {
     let right_arm = gl.characterNode.children[0].children[0].children[3]
     right_arm.rotation[2] = 170 - 5*Math.sin(gl.time_factor*10)
     updateTransformation(right_arm)
 }
 
+/**
+ * Resets r-arm rotation to 0 when player is idle
+ */
 function resetArm() {
     let right_arm = gl.characterNode.children[0].children[0].children[3]
     if (right_arm.rotation[2] === 0) { return; }
@@ -294,18 +269,3 @@ function updateTransformation(node) {
         node.origin
     )
 }
-
-
-// function start_player(character, position){
-//     for (let child of character.children){
-//         for (let i = 0; i < child.position.length; i++){
-//             console.log(i)
-//             character.position[i]=position[i]
-//             child.position[i]= position[i]
-//         }
-//         updateTransformation(character)
-//         updateTransformation(child)
-
-//     }
-
-// }
