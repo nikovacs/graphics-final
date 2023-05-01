@@ -25,8 +25,9 @@ class quadTree {
             this._subDivide();
         }
         for (let child of this.children) {
-            if (child.shouldIncludeTriangle(tri))
+            if (child.shouldIncludeTriangle(tri)) {
                 child.addTriangle(tri);
+            }
         }
     }
 
@@ -96,8 +97,9 @@ class quadTree {
 
         for (let triangle of this.triangles) {
             for (let child of this.children) {
-                if (child.shouldIncludeTriangle(triangle))
+                if (child.shouldIncludeTriangle(triangle)) {
                     child.addTriangle(triangle);
+                }
             }
         }
         this.triangles = [];

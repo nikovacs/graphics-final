@@ -22,23 +22,23 @@ function createVao(gl, attributes, indices) {
     gl.bindVertexArray(vao);
 
     // Load the data into the GPU and associate with shader
-	for (let [attribute, data, count] of attributes) {
-		if (data.constructor !== Float32Array) {
-			data = Float32Array.from(data);
-		}
-		buf = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-		gl.vertexAttribPointer(attribute, count, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(attribute);
-	}
+    for (let [attribute, data, count] of attributes) {
+        if (data.constructor !== Float32Array) {
+            data = Float32Array.from(data);
+        }
+        buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(attribute, count, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(attribute);
+    }
 
     // Load the index data into the GPU
     buf = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buf);
-	if (indices.constructor !== Uint16Array) {
-		indices = Uint16Array.from(indices);
-	}
+    if (indices.constructor !== Uint16Array) {
+        indices = Uint16Array.from(indices);
+    }
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 
     // Cleanup
@@ -56,25 +56,25 @@ function createVao(gl, attributes, indices) {
  * values. The image will be flipped vertically and will support mipmapping.
  */
 function loadTexture(gl, img, idx) {
-	if (typeof idx === "undefined") { idx = 0; }
+    if (typeof idx === "undefined") { idx = 0; }
 
-	let texture = gl.createTexture(); // create a texture resource on the GPU
-	gl.activeTexture(gl.TEXTURE0 + idx); // set the current texture that all following commands will apply to
-	gl.bindTexture(gl.TEXTURE_2D, texture); // assign our texture resource as the current texture
+    let texture = gl.createTexture(); // create a texture resource on the GPU
+    gl.activeTexture(gl.TEXTURE0 + idx); // set the current texture that all following commands will apply to
+    gl.bindTexture(gl.TEXTURE_2D, texture); // assign our texture resource as the current texture
 
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    
-	// Load the image data into the texture
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
-	// Setup options for downsampling and upsampling the image data
-	gl.generateMipmap(gl.TEXTURE_2D);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    // Load the image data into the texture
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
-	// Cleanup and return
-	gl.bindTexture(gl.TEXTURE_2D, null);
-	return texture;
+    // Setup options for downsampling and upsampling the image data
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    // Cleanup and return
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return texture;
 }
 
 
@@ -83,29 +83,29 @@ function loadTexture(gl, img, idx) {
  * using RGBA with uint8 values.
  */
 function loadCubemapTexture(gl, xp, xn, yp, yn, zp, zn, idx) {
-	if (typeof idx === "undefined") { idx = 0; }
+    if (typeof idx === "undefined") { idx = 0; }
 
-	let texture = gl.createTexture(); // create a texture resource on the GPU
-	gl.activeTexture(gl['TEXTURE'+idx]); // set the current texture that all following commands will apply to
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture); // assign our texture resource as the current texture
+    let texture = gl.createTexture(); // create a texture resource on the GPU
+    gl.activeTexture(gl['TEXTURE' + idx]); // set the current texture that all following commands will apply to
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture); // assign our texture resource as the current texture
 
-	// Load the image data into the texture
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xp);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xn);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yp);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yn);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zp);
-	gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zn);
+    // Load the image data into the texture
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xp);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, xn);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yp);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, yn);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zp);
+    gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, zn);
 
-	// Setup options for downsampling and upsampling the image data
-	gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	
-	// Cleanup and return
-	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-	return texture;
+    // Setup options for downsampling and upsampling the image data
+    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    // Cleanup and return
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+    return texture;
 }
 
 
@@ -121,10 +121,10 @@ function loadCubemapTexture(gl, xp, xn, yp, yn, zp, zn, idx) {
  *    Float32Array of the normals with 3 values per vertex
  */
 function calc_normals(coords, indices, is_tri_strip) {
-	const vec3 = glMatrix.vec3;
+    const vec3 = glMatrix.vec3;
 
     if (is_tri_strip !== true && is_tri_strip !== false) { is_tri_strip = true; }
-    
+
     // Start with all vertex normals as <0,0,0>
     let normals = new Float32Array(coords.length);
 
@@ -135,13 +135,13 @@ function calc_normals(coords, indices, is_tri_strip) {
     let inc = is_tri_strip ? 1 : 3; // triangle strips only go up by 1 index per triangle
     for (let i = 0; i < indices.length - 2; i += inc) {
         // Get the indices of the triangle and then get pointers its coords and normals
-        let j = indices[i]*3, k = indices[i+1]*3, l = indices[i+2]*3;
-        let A = coords.subarray(j, j+3), B = coords.subarray(k, k+3), C = coords.subarray(l, l+3);
-        let NA = normals.subarray(j, j+3), NB = normals.subarray(k, k+3), NC = normals.subarray(l, l+3);
+        let j = indices[i] * 3, k = indices[i + 1] * 3, l = indices[i + 2] * 3;
+        let A = coords.subarray(j, j + 3), B = coords.subarray(k, k + 3), C = coords.subarray(l, l + 3);
+        let NA = normals.subarray(j, j + 3), NB = normals.subarray(k, k + 3), NC = normals.subarray(l, l + 3);
 
         // Compute normal for the A, B, C triangle and save to N_face (will need to use V and U as temporaries as well)
         vec3.cross(N_face, vec3.subtract(V, A, B), vec3.subtract(U, C, A));
-        if (is_tri_strip && (i%2) !== 0) { // every other triangle in a strip is actually reversed
+        if (is_tri_strip && (i % 2) !== 0) { // every other triangle in a strip is actually reversed
             vec3.negate(N_face, N_face);
         }
 
@@ -152,8 +152,8 @@ function calc_normals(coords, indices, is_tri_strip) {
     }
 
     // Normalize the normals
-    for (let i = 0; i < normals.length; i+=3) {
-        let N = normals.subarray(i, i+3);
+    for (let i = 0; i < normals.length; i += 3) {
+        let N = normals.subarray(i, i + 3);
         vec3.normalize(N, N);
     }
 
@@ -184,17 +184,17 @@ function loadModel(filename) {
             )
 
             return {
-                    vao: vao,
-                    texture: raw_model.texture,
-                    drawMode: gl.TRIANGLES,
-                    numElements: inds.length,
-                    coords: coords,
-                    normals: normals,
-                    texCoords: texCoords,
-                    indices: inds,
-                    filename: filename // testing
-                }
-            
+                vao: vao,
+                texture: raw_model.texture,
+                drawMode: gl.TRIANGLES,
+                numElements: inds.length,
+                coords: coords,
+                normals: normals,
+                texCoords: texCoords,
+                indices: inds,
+                filename: filename // testing
+            }
+
         })
         // eslint-disable-next-line no-console
         .catch(console.error);
@@ -268,13 +268,13 @@ function calcNormals(coords, indices, is_tri_strip) {
     let inc = is_tri_strip ? 1 : 3; // triangle strips only go up by 1 index per triangle
     for (let i = 0; i < indices.length - 2; i += inc) {
         // Get the indices of the triangle and then get pointers its coords and normals
-        let j = indices[i]*3, k = indices[i+1]*3, l = indices[i+2]*3;
-        let A = coords.subarray(j, j+3), B = coords.subarray(k, k+3), C = coords.subarray(l, l+3);
-        let NA = normals.subarray(j, j+3), NB = normals.subarray(k, k+3), NC = normals.subarray(l, l+3);
+        let j = indices[i] * 3, k = indices[i + 1] * 3, l = indices[i + 2] * 3;
+        let A = coords.subarray(j, j + 3), B = coords.subarray(k, k + 3), C = coords.subarray(l, l + 3);
+        let NA = normals.subarray(j, j + 3), NB = normals.subarray(k, k + 3), NC = normals.subarray(l, l + 3);
 
         // Compute normal for the A, B, C triangle and save to N_face (will need to use V and U as temporaries as well)
         vec3.cross(N_face, vec3.subtract(V, B, A), vec3.subtract(U, C, A));
-        if (is_tri_strip && (i%2) !== 0) { // every other triangle in a strip is actually reversed
+        if (is_tri_strip && (i % 2) !== 0) { // every other triangle in a strip is actually reversed
             vec3.negate(N_face, N_face);
         }
 
@@ -285,8 +285,8 @@ function calcNormals(coords, indices, is_tri_strip) {
     }
 
     // Normalize the normals
-    for (let i = 0; i < normals.length; i+=3) {
-        let N = normals.subarray(i, i+3);
+    for (let i = 0; i < normals.length; i += 3) {
+        let N = normals.subarray(i, i + 3);
         vec3.normalize(N, N);
     }
 
@@ -362,7 +362,7 @@ function createVBO(gl, attribLoc, x, dim) {
     } else if (Array.isArray(x)) {
         data = asFloat32Array(x);
     } else {
-        data = x*dim*Float32Array.BYTES_PER_ELEMENT;
+        data = x * dim * Float32Array.BYTES_PER_ELEMENT;
     }
     let bufferId = gl.createBuffer(); // create a new buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId); // bind to the new buffer
@@ -393,7 +393,7 @@ function createIBO(gl, x) {
     } else if (Array.isArray(x)) {
         data = Uint16Array.from(x);
     } else {
-        data = x*Uint16Array.BYTES_PER_ELEMENT;
+        data = x * Uint16Array.BYTES_PER_ELEMENT;
     }
     let bufferId = gl.createBuffer(); // create a new buffer
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferId); // bind to the new buffer
@@ -432,7 +432,7 @@ function cube(vertices, normals, indices, size) {
     size = size || 1;
     if (!Array.isArray(size)) { size = [size, size, size]; }
     let x = size[0] / 2, y = size[1] / 2, z = size[2] / 2;
-    let v_off = vertices.length/3;
+    let v_off = vertices.length / 3;
     let i_off = indices.length;
     vertices.push(
         x, y, z, -x, y, z, -x, -y, z, // ABC
@@ -475,21 +475,21 @@ function cube(vertices, normals, indices, size) {
  * @returns {[number, number]} the index offset and length for the tetrahedron
  */
 function tetrahedron(vertices, normals, indices) {
-    let v_off = vertices.length/3;
+    let v_off = vertices.length / 3;
     let i_off = indices.length;
     let data = [
         0, 0, -1,
-        0, Math.sqrt(8/9), 1/3,
-        Math.sqrt(2/3), -Math.sqrt(2/9), 1/3,
-        -Math.sqrt(2/3), -Math.sqrt(2/9), 1/3,
+        0, Math.sqrt(8 / 9), 1 / 3,
+        Math.sqrt(2 / 3), -Math.sqrt(2 / 9), 1 / 3,
+        -Math.sqrt(2 / 3), -Math.sqrt(2 / 9), 1 / 3,
     ];
     vertices.push(...data);
     normals.push(...data);
     indices.push(
-        v_off+3, v_off+1, v_off+0,
-        v_off+2, v_off+0, v_off+1,
-        v_off+0, v_off+3, v_off+2,
-        v_off+1, v_off+2, v_off+3,
+        v_off + 3, v_off + 1, v_off + 0,
+        v_off + 2, v_off + 0, v_off + 1,
+        v_off + 0, v_off + 3, v_off + 2,
+        v_off + 1, v_off + 2, v_off + 3,
     );
     return [i_off, 12];
 }
@@ -512,15 +512,15 @@ function circle(vertices, indices, diameter, y, n) {
     y = y || 0;
     n = n || 64;
 
-    let v_off = vertices.length/3;
+    let v_off = vertices.length / 3;
     let i_off = indices.length;
 
     // Add all of the vertices
-    let theta = 2*Math.PI/n;
-    let radius = diameter/2;
+    let theta = 2 * Math.PI / n;
+    let radius = diameter / 2;
     vertices.push(0, y, 0);
     for (let i = 0; i < n; ++i) {
-        vertices.push(radius*Math.cos(i*theta), y, radius*Math.sin(i*theta));
+        vertices.push(radius * Math.cos(i * theta), y, radius * Math.sin(i * theta));
     }
 
     // Add all of the indices
@@ -529,7 +529,7 @@ function circle(vertices, indices, diameter, y, n) {
     }
     indices.push(v_off, v_off + n, v_off + 1);
 
-    return [i_off, n*3];
+    return [i_off, n * 3];
 }
 
 /**
@@ -552,16 +552,16 @@ function cylinder(vertices, normals, indices, height, diameter, n) {
     let inds = [];
 
     // Top circle
-    circle(verts, inds, diameter, -height/2, n);
+    circle(verts, inds, diameter, -height / 2, n);
 
     // Bottom circle
-    let [start, total] = circle(verts, inds, diameter, height/2, n);
+    let [start, total] = circle(verts, inds, diameter, height / 2, n);
 
     // Bottom indices need reversing
     for (let i = start; i < start + total; i += 3) {
         const temp = inds[i];
-        inds[i] = inds[i+1];
-        inds[i+1] = temp;
+        inds[i] = inds[i + 1];
+        inds[i + 1] = temp;
     }
 
     // Connect the top and bottom
@@ -575,17 +575,17 @@ function cylinder(vertices, normals, indices, height, diameter, n) {
     //   n, n-1, 2n and n, 2n, 2n+1
     //   1, 8, 2n+1 and 1, 2n+1, n+2
     for (let i = 1; i < n; i++) {
-        inds.push(i+1, i, n+i+1);
-        inds.push(i+1, n+i+1, n+i+2);
+        inds.push(i + 1, i, n + i + 1);
+        inds.push(i + 1, n + i + 1, n + i + 2);
     }
-    inds.push(1, n, n+n+1);
-    inds.push(1, n+n+1, n+2);
+    inds.push(1, n, n + n + 1);
+    inds.push(1, n + n + 1, n + 2);
 
     // Compute the normals
     norms = calcNormals(verts, inds);
 
     // Add the data to the master arrays
-    let v_off = vertices.length/3;
+    let v_off = vertices.length / 3;
     let i_off = indices.length;
     vertices.push(...verts);
     normals.push(...norms);
@@ -604,7 +604,7 @@ function cylinder(vertices, normals, indices, height, diameter, n) {
 function line_seg_triangle_intersection(p, vec, a, b, c) {
     let [u, v] = [vec3.subtract(_temps[0], b, a), vec3.subtract(_temps[1], c, a)]; // triangle edge vectors
     let uu = vec3.dot(u, u), vv = vec3.dot(v, v), uv = vec3.dot(u, v);
-    let tri_scale = uv*uv-uu*vv;
+    let tri_scale = uv * uv - uu * vv;
     if (tri_scale === 0) { return null; } // triangle is degenerate
     let n = vec3.cross(_temps[2], u, v); // normal vector of the triangle
 
@@ -617,7 +617,7 @@ function line_seg_triangle_intersection(p, vec, a, b, c) {
 
     // Check if the point of intersection lies within the triangle
     let w = vec3.subtract(_temps[6], p, a), wv = vec3.dot(w, v), wu = vec3.dot(w, u);
-    let sI = (uv*wv-vv*wu)/tri_scale, tI = (uv*wu-uu*wv)/tri_scale;
+    let sI = (uv * wv - vv * wu) / tri_scale, tI = (uv * wu - uu * wv) / tri_scale;
     if (sI < 0 || tI < 0 || sI + tI > 1) { return null; } // intersection point is outside of the triangle
 
     // Return the intersection

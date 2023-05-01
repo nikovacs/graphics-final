@@ -5,7 +5,7 @@ function setDefaultListeners() {
     // Set the default listeners for movement
     function monitorKeydown(e) {
         pressedKeys.add(e.key);
-        if (pressedKeys.has('e')){
+        if (pressedKeys.has('e')) {
             wave()
         }
     }
@@ -27,8 +27,8 @@ function setDefaultListeners() {
     });
 }
 
-function animation(){
-    if (pressedKeys.has('e')){
+function animation() {
+    if (pressedKeys.has('e')) {
         wave();
     }
 
