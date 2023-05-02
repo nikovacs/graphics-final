@@ -32,7 +32,27 @@ function setDefaultListeners() {
     currentListeners.push([window, 'keydown', defaultOnKeydown]);
 
     window.addEventListener("keydown", chatBarListener);
+    window.addEventListener("keydown", clearGUI);
 }
+
+/**
+ * This keydown listener is always active and
+ * is used to toggle GUI controls and Chat being visible
+ * @param {event} e 
+ */
+function clearGUI(e) {
+    if (e.key === 'c') {
+        for (let element of ["chatlog", "cursor-controls-overlay", "keyboard-controls-overlay"]) {
+            if (document.getElementById(element).style.display === "none") {
+                document.getElementById(element).style.display = "block"
+            } else{
+                document.getElementById(element).style.display = "none"
+            }
+
+        }
+    }
+}
+        
 
 /**
  * This keydown listener is always active and
