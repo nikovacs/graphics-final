@@ -104,7 +104,7 @@ function chatBarListener(e) {
  * @param {event} e
 */
 function monitorKeydown(e) {
-    pressedKeys.add(e.key);
+    pressedKeys.add(e.key.toLowerCase());
 }
 
 /**
@@ -112,7 +112,7 @@ function monitorKeydown(e) {
  * @param {event} e 
  */
 function monitorKeyup(e) {
-    pressedKeys.delete(e.key);
+    pressedKeys.delete(e.key.toLowerCase());
 }
 
 /**
@@ -128,13 +128,11 @@ function doPointerLock() {
  * @param {event} e 
  */
 function defaultOnKeydown(e) {
-    switch (e.key) {
+    switch (e.key.toLowerCase()) {
     case 't':
-    case 'T':
         firstPerson = !firstPerson;
         break;
     case 'e':
-    case 'E':
         self.animation = "wave";
         setTimeout(() => self.animation = "idle", 2000);
         break;
@@ -148,19 +146,19 @@ function defaultOnKeydown(e) {
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
-    if (pressedKeys.has('w') || pressedKeys.has('W')) {
+    if (pressedKeys.has('w')) {
         // move forward
         directionVector[2] = MOVEMENTSPEED;
     }
-    if (pressedKeys.has('s') || pressedKeys.has('S')) {
+    if (pressedKeys.has('s')) {
         // move backward
         directionVector[2] = -MOVEMENTSPEED;
     }
-    if (pressedKeys.has('a') || pressedKeys.has('A')) {
+    if (pressedKeys.has('a')) {
         // move left
         directionVector[0] = MOVEMENTSPEED;
     }
-    if (pressedKeys.has('d') || pressedKeys.has('D')) {
+    if (pressedKeys.has('d')) {
         // move right
         directionVector[0] = -MOVEMENTSPEED;
     }
