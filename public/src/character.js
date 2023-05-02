@@ -173,6 +173,46 @@ function renderCharacter(node, mv) {
     }
 }
 
+function renderCharacters() {
+    for (const id in players) {
+        if (players[id].animation === "walk") {
+            walk();
+        } else if (players[id].animation === "wave") {
+            wave();
+        } else if (players[id].animation === "idle") {
+            resetArm();
+            resetLegs();
+        }
+        // draw a player
+        renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
+            mat4.create(),
+            quat.fromEuler(quat.create(), 0, -players[id].rot[1], 0),
+            vec3.negate(_temps[0], players[id].pos),
+            vec3.fromValues(0.0375, 0.0375, 0.0375)
+        ))
+    }
+
+    // draw self
+    if (!firstPerson) {
+        if (self.animation === "walk") {
+            walk();
+            resetArm();
+        } else if (self.animation === "wave") {
+            wave();
+            resetLegs();
+        } else if (self.animation === "idle") {
+            resetArm();
+            resetLegs();
+        }
+        renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
+            mat4.create(),
+            quat.fromEuler(quat.create(), 0, -self.rot[1], 0),
+            vec3.negate(_temps[0], self.pos),
+            vec3.fromValues(0.0375, 0.0375, 0.0375)
+        ))
+    }
+}
+
 //////////////////// SCENE GRAPH FUNCTIONS ////////////////////
 
 /**

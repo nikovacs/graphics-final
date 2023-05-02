@@ -13,17 +13,21 @@ function setDefaultListeners() {
         pressedKeys.delete(e.key);
     }
     window.addEventListener('keydown', monitorKeydown);
-    // currentListeners.push(['keydown', monitorKeydown]);
-
     window.addEventListener('keyup', monitorKeyup);
-    // currentListeners.push(['keyup', monitorKeyup]);
-
     // change x and y rotation based on mouse movement
     document.addEventListener('mousemove', defaultMouseMovement);
-    // currentListeners.push(['mousemove', defaultMouseMovement]);
 
     document.addEventListener('click', function () {
         document.body.requestPointerLock();
+    });
+
+    window.addEventListener("keydown", function (e) {
+        switch (e.key) {
+        case 't':
+        case 'T':
+            firstPerson = !firstPerson;
+            break;
+        }
     });
 }
 

@@ -13,6 +13,9 @@ let gl;
 // quadTree variable
 let quadtree = null;
 
+// pov toggle
+let firstPerson = false;
+
 // modelViewMatrix
 let modelViewMatrix = mat4.create();
 
@@ -230,37 +233,7 @@ function render(ms) {
     gl.uniform1i(gl.program.uUseTexture, false);
     gl.bindVertexArray(gl.characterVao);
 
-    // renderCharacter(gl.characterTorso, mat4.create(), {
-    //     rot: [0, 0, 0],
-    //     pos: [4.1855, -0.574, -1.51]
-    // });
-    // renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
-    //         mat4.create(),
-    //         quat.fromEuler(quat.create(), 0, -self.rot[1], 0),
-    //         // vec3.fromValues(-4.16, 0.57, 1.412),
-    //         vec3.negate(vec3.create(), self.pos),
-    //         vec3.fromValues(0.0375, 0.0375, 0.0375)
-    //     )
-    // )
-
-    // iterate over all keys in the players object
-    for (const id in players) {
-        if (players[id].animation === "walk") {
-            walk();
-        } else if (players[id].animation === "wave") {
-            wave();
-        } else if (players[id].animation === "idle") {
-            resetArm();
-            resetLegs();
-        }
-        // draw a player
-        renderCharacter(gl.characterNode, mat4.fromRotationTranslationScale(
-            mat4.create(),
-            quat.fromEuler(quat.create(), 0, -players[id].rot[1], 0),
-            vec3.negate(_temps[0], players[id].pos),
-            vec3.fromValues(0.0375, 0.0375, 0.0375)
-        ))
-    }
+    renderCharacters();
 
     // load world
     gl.uniform1i(gl.program.uUseTexture, true);
@@ -295,18 +268,18 @@ function onWindowResize() {
  * @param {Array || glMatrix.vec3} directionVector 
  */
 function updateViewMatrix(directionVector = [0, 0, 0]) {
-    // modelViewMatrix = mat4.create();
-    let mv = mat4.create();
-    mat4.rotateX(mv, mv, degToRad(self.rot[0]))
-    mat4.rotateY(mv, mv, degToRad(self.rot[1]))
+    let mv = mat4.identity(_temps_mat4[0]);
 
-    // create this separately because we do not want the X rotation to affect the directionVector
-    let invMv = mat4.rotateY(mat4.create(), mat4.create(), degToRad(-self.rot[1]))
+    let invMvXRot = mat4.rotateX(_temps_mat4[1], mv, degToRad(-self.rot[0]))
+    let invMvYRot = mat4.rotateY(_temps_mat4[2], mv, degToRad(-self.rot[1]))
+    let invMv = mat4.multiply(_temps_mat4[3], invMvYRot, invMvXRot)
+    
+    mat4.invert(mv, invMv)
 
-    vec3.transformMat4(directionVector, directionVector, invMv)
+    vec3.transformMat4(directionVector, directionVector, invMvYRot)
     // minDistVec is used to ensure that a point stays at least a certain distance away from a collision
     let minDistVec = vec3.fromValues(0, 0, self.width);
-    vec3.transformMat4(minDistVec, minDistVec, invMv)
+    vec3.transformMat4(minDistVec, minDistVec, invMvYRot)
 
     // by checking twice the distance, we can avoid being closer than the minimum distance
     let collision = checkCollision([...directionVector].map(x => x * 2), self.pos);
@@ -315,13 +288,26 @@ function updateViewMatrix(directionVector = [0, 0, 0]) {
     } else {
         vec3.add(self.pos, self.pos, directionVector)
     }
+
     tryGravity()
 
-    if (self.pos[1] > 2) {
+    // respawn the player if the fall off or under the map
+    if (self.pos[1] > 1) {
         spawnPlayer();
     }
-
+    
     mat4.translate(mv, mv, self.pos);
+
+    let offset;
+    if (!firstPerson) { // modify pov to be third person
+        offset = vec3.fromValues(0, 0, -0.1);
+        vec3.transformMat4(offset, offset, invMv)
+    } else {
+        offset = vec3.fromValues(0, 0, 0);
+    }
+
+    mat4.translate(mv, mv, offset);
+    
     gl.uniformMatrix4fv(gl.program.uViewMatrix, false, mv);
 }
 

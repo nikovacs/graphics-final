@@ -212,7 +212,7 @@ const vec4 = glMatrix.vec4;
 const mat4 = glMatrix.mat4;
 const quat = glMatrix.quat;
 const _temps = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-
+const _temps_mat4 = [mat4.create(), mat4.create(), mat4.create(), mat4.create(), mat4.create(), mat4.create(), mat4.create()];
 
 
 /**
