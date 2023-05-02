@@ -49,7 +49,9 @@ function chatBarListener(e) {
                     closeChatbar();
                     setDefaultListeners();
                     if (chatbox.value.trim() !== "") {
-                        chatLogs.push(chatbox.value.trim());
+                        if (chatbox.value.trim() !== chatLogs[chatLogs.length - 1]) {
+                            chatLogs.push(chatbox.value.trim());
+                        }
                         document.getElementById("chatlog").value = chatLogs.join("\n")
                     }
                     if (chatLogs.length > 18) {
