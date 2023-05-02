@@ -8,6 +8,11 @@ const pressedKeys = new Set();
 const MAXCHATLENGTH = 18;
 const chatLogs = [];
 
+/**
+ * Sets the default listeners for the player
+ * These are important for things such as movement
+ * and mosue controls
+ */
 function setDefaultListeners() {
     // Set the default listeners for movement
     window.addEventListener('keydown', monitorKeydown);
