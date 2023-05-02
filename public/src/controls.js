@@ -48,8 +48,8 @@ function chatBarListener(e) {
                     chatbox.removeEventListener("keydown", chatboxReturnListener);
                     closeChatbar();
                     setDefaultListeners();
-                    if (chatbox.value !== "") {
-                        chatLogs.push(chatbox.value);
+                    if (chatbox.value.trim() !== "") {
+                        chatLogs.push(chatbox.value.trim());
                     }
                     if (chatLogs.length > 18) {
                         chatLogs.shift();
