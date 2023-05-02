@@ -1,6 +1,7 @@
 let currentListeners = [];
 const chatLogs = [];
 const pressedKeys = new Set();
+const MAXCHATLENGTH = 18;
 
 function setDefaultListeners() {
     // Set the default listeners for movement
@@ -50,9 +51,9 @@ function chatBarListener(e) {
                     setDefaultListeners();
                     if (chatbox.value.trim() !== "") {
                         if (chatbox.value.trim() !== chatLogs[chatLogs.length - 1]) {
-                            chatLogs.push(chatbox.value.trim());
+                            addChat(chatbox.value.trim());
                         }
-                        document.getElementById("chatlog").value = chatLogs.join("\n")
+                        
                     }
                     if (chatLogs.length > 18) {
                         chatLogs.shift();
@@ -137,4 +138,20 @@ function clearListeners() {
         obj.removeEventListener(event, func);
     }
     currentListeners = [];
+}
+
+/**
+ * This function is called when a new chat appears,
+ * either from the player or other players
+ * @param {string} txt 
+ */
+function addChat(txt, isSelf = true) {
+    chatLogs.push(txt);
+    if (chatLogs.length > MAXCHATLENGTH) {
+        chatLogs.shift();
+    }
+    document.getElementById("chatlog").value = chatLogs.join("\n")
+    if (isSelf) {
+        broadcastChat(txt);
+    }
 }

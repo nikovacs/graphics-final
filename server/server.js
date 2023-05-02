@@ -25,6 +25,10 @@ io.on("connection", (socket) => {
         onPlayerLogout(socket);
     });
 
+    socket.on("updateChat", (txt) => {
+        socket.broadcast.emit("updateChat", txt);
+    });
+
     socket.on("updatePlayerPosition", (pos) => {
         players[socket.id].pos = pos;
         socket.broadcast.emit("updatePlayerPosition", {

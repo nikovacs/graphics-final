@@ -21,6 +21,10 @@ socket.on("despawnPlayer", (id) => {
     delete players[id];
 });
 
+socket.on("updateChat", (msg) => {
+    addChat(msg, false);
+});
+
 socket.on("updatePlayerPosition", (msg) => {
     // console.log(`Updating player ${msg.id}`)
     players[msg.id].pos = msg.pos
@@ -43,5 +47,13 @@ setInterval(() => {
     socket.emit("updatePlayerRotation", self.rot);
     socket.emit("updatePlayerAnimation", self.animation);
 }, 50);
+
+/**
+ * This function takes a string and broadcasts it to all other sockets
+ * @param {string} txt 
+ */
+function broadcastChat(txt) {
+    socket.emit("updateChat", txt);
+}
 
 
