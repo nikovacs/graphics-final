@@ -1,4 +1,5 @@
 let currentListeners = [];
+const chatLogs = [];
 const pressedKeys = new Set();
 
 function setDefaultListeners() {
@@ -20,21 +21,39 @@ function setDefaultListeners() {
     currentListeners.push([window, 'keydown', defaultOnKeydown]);
 
     window.addEventListener("keydown", chatBarListener);
-    // currentListeners.push([window, 'keydown', chatBarListener]);
 }
 
 function chatBarListener(e) {
+    function closeChatbar() {
+        chatbox.style.display = "none";
+        setDefaultListeners();
+    }
+
+    function openChatbar() {
+        chatbox.value = "";
+        chatbox.style.display = "block";
+        chatbox.focus();
+    }
+
     if (e.key === 'Tab') {
         e.preventDefault();
         clearListeners();
         let chatbox = document.getElementById("chatbox")
         if (chatbox.style.display === "block") {
-            chatbox.style.display = "none";
-            setDefaultListeners();
+            closeChatbar();
         } else {
-            chatbox.style.display = "block";
-            chatbox.setAttribute("tabindex", "0")
-            chatbox.focus();
+            chatbox.addEventListener("keydown", function chatboxReturnListener(e1) {
+                if (e1.key === 'Enter') {
+                    e.preventDefault();
+                    chatbox.removeEventListener("keydown", chatboxReturnListener);
+                    closeChatbar();
+                    setDefaultListeners();
+                    if (chatbox.value !== "") {
+                        chatLogs.push(chatbox.value);
+                    }
+                }
+            });
+            openChatbar();
         }
     }
 }
