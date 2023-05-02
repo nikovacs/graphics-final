@@ -1,34 +1,44 @@
-// let currentListeners = [];
+let currentListeners = [];
 const pressedKeys = new Set();
 
 function setDefaultListeners() {
     // Set the default listeners for movement
-    function monitorKeydown(e) {
-        pressedKeys.add(e.key);
-        if (pressedKeys.has('e')) {
-            wave()
-        }
-    }
-    function monitorKeyup(e) {
-        pressedKeys.delete(e.key);
-    }
     window.addEventListener('keydown', monitorKeydown);
+    currentListeners.push([window, 'keydown', monitorKeydown]);
+
     window.addEventListener('keyup', monitorKeyup);
+    currentListeners.push([window, 'keyup', monitorKeyup]);
+
     // change x and y rotation based on mouse movement
     document.addEventListener('mousemove', defaultMouseMovement);
+    currentListeners.push([document, 'mousemove', defaultMouseMovement]);
 
-    document.addEventListener('click', function () {
-        document.body.requestPointerLock();
-    });
+    document.addEventListener('click', doPointerLock);
+    currentListeners.push([document, 'click', doPointerLock]);
 
-    window.addEventListener("keydown", function (e) {
-        switch (e.key) {
-        case 't':
-        case 'T':
-            firstPerson = !firstPerson;
-            break;
-        }
-    });
+    window.addEventListener("keydown", onKeydown);
+    currentListeners.push([window, 'keydown', onKeydown]);
+}
+
+function monitorKeydown(e) {
+    pressedKeys.add(e.key);
+}
+
+function monitorKeyup(e) {
+    pressedKeys.delete(e.key);
+}
+
+function doPointerLock() {
+    document.body.requestPointerLock();
+}
+
+function onKeydown(e) {
+    switch (e.key) {
+    case 't':
+    case 'T':
+        firstPerson = !firstPerson;
+        break;
+    }
 }
 
 // }
@@ -82,9 +92,9 @@ function defaultMouseMovement(e) {
 /**
  * Clears all listeners that are currently on the player
  */
-// function clearListeners() {
-//     for (let [event, func] of currentListeners) {
-//         gl.canvas.removeEventListener(event, func);
-//     }
-//     currentListeners = [];
-// }
+function clearListeners() {
+    for (let [obj, event, func] of currentListeners) {
+        obj.removeEventListener(event, func);
+    }
+    currentListeners = [];
+}
