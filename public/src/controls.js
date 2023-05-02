@@ -29,9 +29,16 @@ function setDefaultListeners() {
             break;
         }
     });
+    window.addEventListener("keydown", function (e) {
+        if (e.key=== 'Tab') {
+            let chatbox = document.getElementById("chatbox")
+            chatbox.style.display = "block";
+            chatbox.focus();
+            // document.getElementById("chatbox").setAttribute("display", "block");
+        }
+    });
 }
 
-// }
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
@@ -88,3 +95,5 @@ function defaultMouseMovement(e) {
 //     }
 //     currentListeners = [];
 // }
+
+
