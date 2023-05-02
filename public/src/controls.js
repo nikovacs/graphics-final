@@ -1,7 +1,12 @@
+// Array holding arrays of [object, event, function] for all listeners
 let currentListeners = [];
-const chatLogs = [];
+
+// set to contain all keys that are currently held down
 const pressedKeys = new Set();
+
+// the maximum number of chats that can exist in the chat logs
 const MAXCHATLENGTH = 18;
+const chatLogs = [];
 
 function setDefaultListeners() {
     // Set the default listeners for movement
@@ -24,6 +29,11 @@ function setDefaultListeners() {
     window.addEventListener("keydown", chatBarListener);
 }
 
+/**
+ * This keydown listener is always active and
+ * is used to open and close the chatbar
+ * @param {event} e 
+ */
 function chatBarListener(e) {
     function closeChatbar() {
         chatbox.style.display = "none";
@@ -62,14 +72,27 @@ function chatBarListener(e) {
     }
 }
 
+/**
+ * Adds a key to the set of keys
+ * when a new one is pressed
+ * @param {event} e
+*/
 function monitorKeydown(e) {
     pressedKeys.add(e.key);
 }
 
+/**
+ * Removes a key from the set of keys
+ * @param {event} e 
+ */
 function monitorKeyup(e) {
     pressedKeys.delete(e.key);
 }
 
+/**
+ * This function is called when the mouse is clicked
+ * and it locks the pointer to the screen
+ */
 function doPointerLock() {
     document.body.requestPointerLock();
 }
@@ -146,6 +169,7 @@ function clearListeners() {
         obj.removeEventListener(event, func);
     }
     currentListeners = [];
+    pressedKeys.clear();
 }
 
 /**
