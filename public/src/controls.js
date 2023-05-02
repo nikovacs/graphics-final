@@ -18,32 +18,30 @@ function setDefaultListeners() {
 
     window.addEventListener("keydown", defaultOnKeydown);
     currentListeners.push([window, 'keydown', defaultOnKeydown]);
+
+    window.addEventListener("keydown", chatBarListener);
+    // currentListeners.push([window, 'keydown', chatBarListener]);
+}
+
+function chatBarListener(e) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        clearListeners();
+        let chatbox = document.getElementById("chatbox")
+        if (chatbox.style.display === "block") {
+            chatbox.style.display = "none";
+            setDefaultListeners();
+        } else {
+            chatbox.style.display = "block";
+            chatbox.focus();
+        }
+    }
 }
 
 function monitorKeydown(e) {
     pressedKeys.add(e.key);
 }
 
-    document.addEventListener('click', function () {
-        document.body.requestPointerLock();
-    });
-
-    window.addEventListener("keydown", function (e) {
-        switch (e.key) {
-        case 't':
-        case 'T':
-            firstPerson = !firstPerson;
-            break;
-        }
-    });
-    window.addEventListener("keydown", function (e) {
-        if (e.key=== 'Tab') {
-            let chatbox = document.getElementById("chatbox")
-            chatbox.style.display = "block";
-            chatbox.focus();
-            // document.getElementById("chatbox").setAttribute("display", "block");
-        }
-    });
 function monitorKeyup(e) {
     pressedKeys.delete(e.key);
 }
