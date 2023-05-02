@@ -32,7 +32,7 @@
             html {
                 overflow: hidden;
             }
-            #overlay1 {
+            #keyboard-controls-overlay {
                 position: absolute;
                 right: 10px;
                 top: 10px;
@@ -42,19 +42,47 @@
                 padding: 1em;
                 border: 5px solid rgb(8, 0, 90);
                 }
-            #overlay2 {
-            position: absolute;
-            left: 10px;
-            top: 10px;
-            background-color: rgba(255, 255, 255, 0.6);
-            color: rgb(0, 0, 0);
-            font-family: monospace;
-            padding: 1em;
-            border: 3px solid rgb(8, 0, 90);
+            #cursor-controls-overlay {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                background-color: rgba(255, 255, 255, 0.6);
+                color: rgb(0, 0, 0);
+                font-family: monospace;
+                padding: 1em;
+                border: 3px solid rgb(8, 0, 90);
+            }
+            #chatbox {
+                position: absolute;
+                left: 10px;
+                bottom: 10px;
+                background-color: rgba(255, 255, 255, 0.6);
+                color: rgb(0, 0, 0);
+                font-family: monospace;
+                padding: 1em;
+                width: 30%;
+                border: 3px solid rgb(8, 0, 90);
+                text-align: center;
+                display:none
+            }
+            #chatlog {
+                position: fixed;
+                right: 10px;
+                bottom: 10px;
+                background-color: rgba(255, 255, 255, 0.6);
+                color: rgb(0, 0, 0);
+                font-family: monospace;
+                padding: 1%;
+                height: 40%;
+                width: 15%;
+                border: 3px solid rgb(8, 0, 90);
+                resize: none;
+                text-align: center;
+                display: none;
             }
             
         </style>
-        <div id="overlay1">
+        <div id="keyboard-controls-overlay">
             <div style="text-align: center;"><b>CONTROLS</b><span></span></div>
             <div><button><b>W</b></button> Forward<span></span></div>
             <div><button><b>A</b></button> Left<span></span></div>
@@ -65,11 +93,20 @@
             <div><button><b>ESC</b></button> Exit<span></span></div>
         </div>
 
-        <div id="overlay2">
-            <div style="text-align: center;"><b>CURSOR CONTROLS</b><span></span></div>
+        <div id="cursor-controls-overlay">
+            <div><b>CURSOR CONTROLS</b><span></span></div>
             <div><b>Mouse</b>: Camera Movement<span></span></div>
             <div><b>Click</b>: Capture Cursor <span></span></div>
         </div>
+
+        <div id="chatbox">
+            <textarea style="width: 100%; resize: none;"> </textarea>
+        </div>
+        <div id="chatlog">
+            <textarea rows="18" cols="15" style="width: 100%; resize: none;"> </textarea>
+        </div>
+
+
           
     </head>
         <!-- Define the canvas to use for the WebGL example -->

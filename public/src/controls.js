@@ -24,6 +24,26 @@ function monitorKeydown(e) {
     pressedKeys.add(e.key);
 }
 
+    document.addEventListener('click', function () {
+        document.body.requestPointerLock();
+    });
+
+    window.addEventListener("keydown", function (e) {
+        switch (e.key) {
+        case 't':
+        case 'T':
+            firstPerson = !firstPerson;
+            break;
+        }
+    });
+    window.addEventListener("keydown", function (e) {
+        if (e.key=== 'Tab') {
+            let chatbox = document.getElementById("chatbox")
+            chatbox.style.display = "block";
+            chatbox.focus();
+            // document.getElementById("chatbox").setAttribute("display", "block");
+        }
+    });
 function monitorKeyup(e) {
     pressedKeys.delete(e.key);
 }
@@ -41,7 +61,6 @@ function defaultOnKeydown(e) {
     }
 }
 
-// }
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
