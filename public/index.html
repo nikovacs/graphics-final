@@ -63,6 +63,7 @@
                 width: 30%;
                 border: 3px solid rgb(8, 0, 90);
                 text-align: left;
+                resize: none;
                 display:none
             }
             #chatlog {
@@ -79,6 +80,7 @@
                 resize: none;
                 text-align: left;
                 display: block;
+                overflow: hidden;
             }
             
         </style>
@@ -91,6 +93,8 @@
             <div><button><b>E</b></button> Wave<span></span></div>
             <div><button><b>T</b></button> Toggle POV<span></span></div>
             <div><button><b>ESC</b></button> Exit<span></span></div>
+            <div><button><b>TAB</b></button> Toggle Chat<span></span></div>
+
         </div>
 
         <div id="cursor-controls-overlay">
@@ -100,14 +104,12 @@
         </div>
 
         <div>
-            <textarea id="chatbox" maxlength="45" style="resize: none;"> </textarea>
+            <textarea id="chatbox" maxlength="45"> </textarea>
         </div>
+
         <div>
-            <textarea id="chatlog" rows="18" cols="15" style="resize: none;"> </textarea>
+            <textarea id="chatlog" readonly rows="15" cols="20"> </textarea>
         </div>
-
-
-          
     </head>
         <!-- Define the canvas to use for the WebGL example -->
         <canvas id="webgl-canvas" width="400" height="400">
