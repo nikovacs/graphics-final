@@ -3,3 +3,5 @@
 !/.eslintrc.json
 Desktop.ini
 Icon[]
+node_modules
+.vscode
