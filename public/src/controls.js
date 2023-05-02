@@ -74,11 +74,20 @@ function doPointerLock() {
     document.body.requestPointerLock();
 }
 
+/**
+ * Default functionality for keydown events
+ * @param {event} e 
+ */
 function defaultOnKeydown(e) {
     switch (e.key) {
     case 't':
     case 'T':
         firstPerson = !firstPerson;
+        break;
+    case 'e':
+    case 'E':
+        self.animation = "wave";
+        setTimeout(() => self.animation = "idle", 2000);
         break;
     }
 }
@@ -86,19 +95,19 @@ function defaultOnKeydown(e) {
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
-    if (pressedKeys.has('w')) {
+    if (pressedKeys.has('w') || pressedKeys.has('W')) {
         // move forward
         directionVector[2] = MOVEMENTSPEED;
     } 
-    if (pressedKeys.has('s')) {
+    if (pressedKeys.has('s') || pressedKeys.has('S')) {
         // move backward
         directionVector[2] = -MOVEMENTSPEED;
     } 
-    if (pressedKeys.has('a')) {
+    if (pressedKeys.has('a') || pressedKeys.has('A')) {
         // move left
         directionVector[0] = MOVEMENTSPEED;
     } 
-    if (pressedKeys.has('d')) {
+    if (pressedKeys.has('d') || pressedKeys.has('D')) {
         // move right
         directionVector[0] = -MOVEMENTSPEED;
     }
@@ -107,9 +116,6 @@ function doMovement() {
 
     if (directionVector.some((x) => x !== 0)) {
         self.animation = "walk";
-    } else if (pressedKeys.has('e')) {
-        self.animation = "wave";
-        setTimeout(() => self.animation = "idle", 2000);
     } else if (self.animation === "walk") {
         self.animation = "idle";
     }    
@@ -118,6 +124,11 @@ function doMovement() {
     setTimeout(() => this.doMovement(), 15);
 }
 
+/**
+ * The default event function for using the
+ * mouse to change the camera's position
+ * @param {event} e 
+ */
 function defaultMouseMovement(e) {
     const sensitivity = 0.05;
     let x = e.movementX;
