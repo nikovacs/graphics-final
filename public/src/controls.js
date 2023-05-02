@@ -51,6 +51,9 @@ function chatBarListener(e) {
                     if (chatbox.value !== "") {
                         chatLogs.push(chatbox.value);
                     }
+                    if (chatLogs.length > 18) {
+                        chatLogs.shift();
+                    }
                 }
             });
             openChatbar();
