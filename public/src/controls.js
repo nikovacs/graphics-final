@@ -16,8 +16,8 @@ function setDefaultListeners() {
     document.addEventListener('click', doPointerLock);
     currentListeners.push([document, 'click', doPointerLock]);
 
-    window.addEventListener("keydown", onKeydown);
-    currentListeners.push([window, 'keydown', onKeydown]);
+    window.addEventListener("keydown", defaultOnKeydown);
+    currentListeners.push([window, 'keydown', defaultOnKeydown]);
 }
 
 function monitorKeydown(e) {
@@ -32,7 +32,7 @@ function doPointerLock() {
     document.body.requestPointerLock();
 }
 
-function onKeydown(e) {
+function defaultOnKeydown(e) {
     switch (e.key) {
     case 't':
     case 'T':
@@ -84,9 +84,6 @@ function defaultMouseMovement(e) {
 
     self.rot[1] += x * sensitivity;
     self.rot[0] += y * sensitivity;
-
-    // updateModelViewMatrix();
-
 }
 
 /**
