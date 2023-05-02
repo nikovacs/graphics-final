@@ -44,7 +44,7 @@ class quadTree {
         }
         return triangles;
 
-        
+
     }
 
     /**
