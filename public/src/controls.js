@@ -115,6 +115,10 @@ function defaultOnKeydown(e) {
     }
 }
 
+/**
+ * Recursive function that updates the view matrix
+ * based on keyboard inputs
+ */
 function doMovement() {
     const MOVEMENTSPEED = 0.0025;
     const directionVector = [0, 0, 0];
@@ -137,6 +141,7 @@ function doMovement() {
     
     updateViewMatrix(directionVector);
 
+    // set an appropriate animation
     if (directionVector.some((x) => x !== 0)) {
         self.animation = "walk";
     } else if (self.animation === "walk") {
