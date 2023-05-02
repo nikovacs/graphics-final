@@ -110,7 +110,7 @@ function initProgram() {
         uniform bool uUseTexture;
 
         // Light and material properties
-        const vec3 lightColor = vec3(1, 1, 1);
+        uniform vec3 uLightColor;
         uniform vec4 uMaterialColor;
         const float materialAmbient = 1.0;
         const float materialDiffuse = 0.0;
@@ -151,7 +151,7 @@ function initProgram() {
             }
 
             // Compute final color
-            fragColor.rgb = lightColor * (
+            fragColor.rgb = uLightColor * (
                 (materialAmbient + materialDiffuse * diffuse) * color.rgb +
                 materialSpecular * specular);
             fragColor.a = color.a;
@@ -174,6 +174,7 @@ function initProgram() {
     program.uMaterialColor = gl.getUniformLocation(program, 'uMaterialColor');
     program.uTexture = gl.getUniformLocation(program, 'uTexture');
     program.uUseTexture = gl.getUniformLocation(program, 'uUseTexture');
+    program.uLightColor = gl.getUniformLocation(program, 'uLightColor');
 
     return program;
 }
@@ -229,6 +230,9 @@ function render(ms) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     if (!ms) { ms = performance.now(); }
     gl.time_factor = ms * 2 * Math.PI / 1000;
+
+    adjustLightIntensity();
+
     // draw players
     gl.uniform1i(gl.program.uUseTexture, false);
     gl.bindVertexArray(gl.characterVao);
@@ -405,3 +409,11 @@ function spawnPlayer() {
     self.rot[0, 0, 0]
 }
 
+/**
+ * Adjusts the light intensity based on the time of day.
+ */
+function adjustLightIntensity() {
+    const timeOfDay = (new Date()).getHours() / 24;
+    const intensity = Math.sin(timeOfDay * Math.PI)
+    gl.uniform3f(gl.program.uLightColor, intensity, intensity, intensity);
+}
