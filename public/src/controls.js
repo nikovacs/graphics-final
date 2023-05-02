@@ -33,6 +33,7 @@ function chatBarListener(e) {
             setDefaultListeners();
         } else {
             chatbox.style.display = "block";
+            chatbox.setAttribute("tabindex", "0")
             chatbox.focus();
         }
     }
