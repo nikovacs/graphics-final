@@ -50,6 +50,7 @@ function chatBarListener(e) {
                     setDefaultListeners();
                     if (chatbox.value !== "") {
                         chatLogs.push(chatbox.value);
+                        document.getElementById("chatlog").value = chatLogs.join("\n")
                     }
                     if (chatLogs.length > 18) {
                         chatLogs.shift();
