@@ -50,10 +50,7 @@ function chatBarListener(e) {
                     closeChatbar();
                     setDefaultListeners();
                     if (chatbox.value.trim() !== "") {
-                        if (chatbox.value.trim() !== chatLogs[chatLogs.length - 1]) {
-                            addChat(new Date().toLocaleTimeString() +  " " + chatbox.value.trim());
-                        }
-                        
+                        addChat(chatbox.value.trim());
                     }
                     if (chatLogs.length > 18) {
                         chatLogs.shift();
@@ -146,7 +143,10 @@ function clearListeners() {
  * @param {string} txt 
  */
 function addChat(txt, isSelf = true) {
-    chatLogs.push(txt);
+    if (chatLogs.length !== 0 && chatLogs[chatLogs.length - 1].endsWith(txt.trim())) {
+        return;
+    }
+    chatLogs.push(new Date().toLocaleTimeString() +  " " + txt);
     if (chatLogs.length > MAXCHATLENGTH) {
         chatLogs.shift();
     }

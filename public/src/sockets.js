@@ -48,7 +48,7 @@ setInterval(() => {
     socket.emit("updatePlayerAnimation", self.animation);
 }, 50);
 
-/**
+/** 
  * This function takes a string and broadcasts it to all other sockets
  * @param {string} txt 
  */
