@@ -12,7 +12,6 @@ socket.on("spawnPlayer", (msg) => {
 });
 
 socket.on("despawnPlayer", (id) => {
-    console.log(`Despawning player ${id}`)
     delete players[id];
 });
 

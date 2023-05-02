@@ -9,7 +9,7 @@ function initCharacter() {
     // Colors
     let shirt = [0.0, 0.5, 0.0, 1.0];
     let jeans = [0.06, 0.3, 0.55, 1.0];
-    let skin  = [1.0, 0.85, 0.05, 1.0];
+    let skin = [1.0, 0.85, 0.05, 1.0];
     let black = [0.0, 0.0, 0.0, 1.0];
 
     // Create drawables to use for all parts
@@ -34,87 +34,87 @@ function initCharacter() {
     // Create the scene graph of all of the body parts for the character
 
     let left_arm = createNode({
-        'id':'l-arm',
+        'id': 'l-arm',
         'color': skin,
         'start': arm_start,
-        'origin': [0, 0.25/2, 0],
+        'origin': [0, 0.25 / 2, 0],
         'count': arm_count,
         'position': [-.12, .025, 0],
-        'rotation' :[0,0,0]
+        'rotation': [0, 0, 0]
 
     });
     updateTransformation(left_arm)
-    let right_arm = copyNode(left_arm, {'position': [.12, .025, 0], 'id':'r-arm'});
+    let right_arm = copyNode(left_arm, { 'position': [.12, .025, 0], 'id': 'r-arm' });
     updateTransformation(right_arm)
 
 
     let left_leg = createNode({
-        'id':'l-leg',
+        'id': 'l-leg',
         'color': jeans,
         'start': leg_start,
-        'origin': [0, 0.35/2, 0],
+        'origin': [0, 0.35 / 2, 0],
         'count': leg_count,
-        'position': [-.06, -0.55/2, 0],
-        'rotation' :[0,0,0]
+        'position': [-.06, -0.55 / 2, 0],
+        'rotation': [0, 0, 0]
 
     });
     updateTransformation(left_leg);
-    let right_leg = copyNode(left_leg, {'position': [.06, -0.55/2, 0], 'id':'r-leg','rotation':[0,0,0]});
+    let right_leg = copyNode(left_leg, { 'position': [.06, -0.55 / 2, 0], 'id': 'r-leg', 'rotation': [0, 0, 0] });
     updateTransformation(right_leg)
     let torso = createNode({
-        'id':'torso',
+        'id': 'torso',
         'position': [0, -0.075, 0],
         'color': shirt,
         'start': torso_start,
         'count': torso_count,
         'children': [left_leg, right_leg, left_arm, right_arm],
-        'rotation' :[0,1,0]
+        'rotation': [0, 1, 0]
 
     });
     updateTransformation(torso)
 
     let neck = createNode({
-        'id':'neck',
-        'position': [0, -0.35/2, 0],
+        'id': 'neck',
+        'position': [0, -0.35 / 2, 0],
         'color': skin,
         'start': neck_start,
         'count': neck_count,
         'children': [torso],
-        'rotation' :[0,1,0]
+        'rotation': [0, 1, 0]
 
     });
     updateTransformation(neck)
 
     let left_eye = createNode({
-        'id': 'l-eye', 
+        'id': 'l-eye',
         'position': [0.03, 0.04, -0.07],
         'color': black,
         'start': eye_start,
         'count': eye_count,
-        'rotation' :[0,0,0]
+        'rotation': [0, 0, 0]
     });
     updateTransformation(left_eye)
-    let right_eye = copyNode(left_eye, {'position': [-0.03, 0.04, -.07], 'id':'r-eye'});
+    let right_eye = copyNode(left_eye, { 'position': [-0.03, 0.04, -.07], 'id': 'r-eye' });
     updateTransformation(right_eye)
 
     let mouth = createNode({
-        'id': 'mouth', 
+        'id': 'mouth',
         'position': [0, -0.02, -0.07],
         'color': black,
         'start': mouth_start,
         'count': mouth_count,
-        'rotation' :[0,0,0]
+        'rotation': [0, 0, 0]
     });
     updateTransformation(mouth)
 
     let head = createNode({
-        'id': 'head', 
+        'id': 'head',
         'position': [0.01, -0.06, 0],
         'color': skin,
         'start': head_start,
         'count': head_count,
         "children": [neck, left_eye, right_eye, mouth],
-        'rotation' :[0,0,0]
+        'rotation': [0, 0, 0]
     });
     updateTransformation(head)
 
@@ -141,7 +141,7 @@ function renderCharacter(node, mv) {
     gl.uniform4fv(gl.program.uMaterialColor, node.color);
 
     // Draw the object
-    gl.drawElements(node.mode, node.count, gl.UNSIGNED_SHORT, node.start*Uint16Array.BYTES_PER_ELEMENT);
+    gl.drawElements(node.mode, node.count, gl.UNSIGNED_SHORT, node.start * Uint16Array.BYTES_PER_ELEMENT);
 
     // Render all child nodes
     for (let child of node.children) {
@@ -175,7 +175,7 @@ function renderCharacters() {
 
     // draw self
     if (!firstPerson) {
-       _doRender(self);
+        _doRender(self);
     }
 }
 
@@ -233,7 +233,7 @@ function createNode(info) {
  * @returns {object} the new copy of the node
  */
 function copyNode(node, addl_info = {}) {
-    return Object.assign(structuredClone(node), {'children': []}, addl_info);
+    return Object.assign(structuredClone(node), { 'children': [] }, addl_info);
 }
 
 /**
@@ -273,7 +273,7 @@ function resetLegs() {
  */
 function wave() {
     let right_arm = gl.characterNode.children[0].children[0].children[3]
-    right_arm.rotation[2] = 170 - 5*Math.sin(gl.time_factor*10)
+    right_arm.rotation[2] = 170 - 5 * Math.sin(gl.time_factor * 10)
     updateTransformation(right_arm)
 }
 

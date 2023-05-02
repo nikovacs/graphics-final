@@ -60,6 +60,7 @@ function clearGUI(e) {
  * @param {event} e 
  */
 function chatBarListener(e) {
+    let chatbox = document.getElementById("chatbox")
     function closeChatbar() {
         chatbox.style.display = "none";
         setDefaultListeners();
@@ -74,7 +75,6 @@ function chatBarListener(e) {
     if (e.key === 'Tab') {
         e.preventDefault();
         clearListeners();
-        let chatbox = document.getElementById("chatbox")
         if (chatbox.style.display === "block") {
             closeChatbar();
         } else {
@@ -150,20 +150,20 @@ function doMovement() {
     if (pressedKeys.has('w') || pressedKeys.has('W')) {
         // move forward
         directionVector[2] = MOVEMENTSPEED;
-    } 
+    }
     if (pressedKeys.has('s') || pressedKeys.has('S')) {
         // move backward
         directionVector[2] = -MOVEMENTSPEED;
-    } 
+    }
     if (pressedKeys.has('a') || pressedKeys.has('A')) {
         // move left
         directionVector[0] = MOVEMENTSPEED;
-    } 
+    }
     if (pressedKeys.has('d') || pressedKeys.has('D')) {
         // move right
         directionVector[0] = -MOVEMENTSPEED;
     }
-    
+
     updateViewMatrix(directionVector);
 
     // set an appropriate animation
@@ -171,7 +171,7 @@ function doMovement() {
         self.animation = "walk";
     } else if (self.animation === "walk") {
         self.animation = "idle";
-    }    
+    }
 
     // call again in 15ms
     setTimeout(() => this.doMovement(), 15);
@@ -211,7 +211,7 @@ function addChat(txt, isSelf = true) {
     if (chatLogs.length !== 0 && chatLogs[chatLogs.length - 1].endsWith(txt.trim())) {
         return;
     }
-    chatLogs.push(new Date().toLocaleTimeString() +  ": " + txt);
+    chatLogs.push(new Date().toLocaleTimeString() + ": " + txt);
     if (chatLogs.length > MAXCHATLENGTH) {
         chatLogs.shift();
     }

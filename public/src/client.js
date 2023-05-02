@@ -228,7 +228,7 @@ function updateProjectionMatrix() {
 function render(ms) {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     if (!ms) { ms = performance.now(); }
-    gl.time_factor = ms*2*Math.PI/1000;
+    gl.time_factor = ms * 2 * Math.PI / 1000;
     // draw players
     gl.uniform1i(gl.program.uUseTexture, false);
     gl.bindVertexArray(gl.characterVao);
@@ -273,7 +273,7 @@ function updateViewMatrix(directionVector = [0, 0, 0]) {
     let invMvXRot = mat4.rotateX(_temps_mat4[1], mv, degToRad(-self.rot[0]))
     let invMvYRot = mat4.rotateY(_temps_mat4[2], mv, degToRad(-self.rot[1]))
     let invMv = mat4.multiply(_temps_mat4[3], invMvYRot, invMvXRot)
-    
+
     mat4.invert(mv, invMv)
 
     vec3.transformMat4(directionVector, directionVector, invMvYRot)
@@ -295,7 +295,7 @@ function updateViewMatrix(directionVector = [0, 0, 0]) {
     if (self.pos[1] > 1) {
         spawnPlayer();
     }
-    
+
     mat4.translate(mv, mv, self.pos);
 
     let offset;
@@ -307,7 +307,7 @@ function updateViewMatrix(directionVector = [0, 0, 0]) {
     }
 
     mat4.translate(mv, mv, offset);
-    
+
     gl.uniformMatrix4fv(gl.program.uViewMatrix, false, mv);
 }
 
@@ -402,6 +402,6 @@ function tryGravity() {
 function spawnPlayer() {
     self.pos = [4.1855, -0.574, -1.51]
     // self.pos = [0,0,-1] // To see the character
-    self.rot [0, 0, 0]
+    self.rot[0, 0, 0]
 }
 
