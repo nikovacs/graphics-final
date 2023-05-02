@@ -146,7 +146,7 @@ function addChat(txt, isSelf = true) {
     if (chatLogs.length !== 0 && chatLogs[chatLogs.length - 1].endsWith(txt.trim())) {
         return;
     }
-    chatLogs.push(new Date().toLocaleTimeString() +  " " + txt);
+    chatLogs.push(new Date().toLocaleTimeString() +  ": " + txt);
     if (chatLogs.length > MAXCHATLENGTH) {
         chatLogs.shift();
     }

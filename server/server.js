@@ -14,7 +14,7 @@ let io = socketIO(server);
 app.use(compression())
 app.use(express.static(publicPath));
 
-players = {};
+const players = {};
 
 io.on("connection", (socket) => {
     console.log(`A new user just connected: ${socket.id}`);
@@ -78,10 +78,6 @@ function onPlayerLogin(socket) {
         }
         socket.emit("spawnPlayer", {
             id: id,
-            // x: players[id].x,
-            // y: players[id].y,
-            // y_rot: players[id].y_rot,
-            // animation: players[id].animation
             pos: players[id].pos,
             rot: players[id].rot,
             animation: players[id].animation
