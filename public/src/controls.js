@@ -40,6 +40,7 @@ function setDefaultListeners() {
  * @param {event} e 
  */
 function chatBarListener(e) {
+    let chatbox = document.getElementById("chatbox")
     function closeChatbar() {
         chatbox.style.display = "none";
         setDefaultListeners();
@@ -54,7 +55,6 @@ function chatBarListener(e) {
     if (e.key === 'Tab') {
         e.preventDefault();
         clearListeners();
-        let chatbox = document.getElementById("chatbox")
         if (chatbox.style.display === "block") {
             closeChatbar();
         } else {
