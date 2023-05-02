@@ -32,7 +32,7 @@ function setDefaultListeners() {
     currentListeners.push([window, 'keydown', defaultOnKeydown]);
 
     window.addEventListener("keydown", chatBarListener);
-    window.addEventListener("keydown", clearGUI);
+    window.addEventListener("keydown", toggleGUI);
 }
 
 /**
@@ -40,15 +40,16 @@ function setDefaultListeners() {
  * is used to toggle GUI controls and Chat being visible
  * @param {event} e 
  */
-function clearGUI(e) {
-    if (e.key === 'c') {
+function toggleGUI(e) {
+    if (e.key === 'c' & document.getElementById("chatbox").style.display !== "block") {
+        clearListeners();
         for (let element of ["chatlog", "cursor-controls-overlay", "keyboard-controls-overlay"]) {
             if (document.getElementById(element).style.display === "none") {
                 document.getElementById(element).style.display = "block"
             } else{
                 document.getElementById(element).style.display = "none"
             }
-
+            setDefaultListeners();
         }
     }
 }
