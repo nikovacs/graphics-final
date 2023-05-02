@@ -216,7 +216,7 @@ function addChat(txt, isSelf = true) {
     if (chatLogs.length > MAXCHATLENGTH) {
         chatLogs.shift();
     }
-    document.getElementById("chatlog").value = chatLogs.join("\n")
+    document.getElementById("chatlog").value = [...chatLogs].reverse().join("\n")
     if (isSelf) {
         broadcastChat(txt);
     }
