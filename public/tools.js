@@ -214,30 +214,6 @@ const quat = glMatrix.quat;
 const _temps = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
 const _temps_mat4 = [mat4.create(), mat4.create(), mat4.create(), mat4.create(), mat4.create(), mat4.create(), mat4.create()];
 
-
-/**
- * Load a model from a file into its own VAO and return the VAO and number of indices.
- * Note that having one VAO per model can be expensive if there are lots of models.
- *
- * @param {string} filename 
- * @returns {Promise<[WebGLVertexArrayObject, number]>}
- */
-function loadModelAsVAO(filename) {
-    return fetch(filename)
-        .then(r => r.json())
-        .then(raw_model => {
-            let vao = createVAO(gl, gl.program, {
-                "aPosition": raw_model.vertices,
-                "aNormal": calcNormals(positions, raw_model.indices),
-            }, raw_model.indices)
-
-            // Return the VAO and number of indices
-            return [vao, raw_model.indices.length];
-        })
-        .catch(console.error);
-}
-
-
 /**
  * Calculates the normals for the vertices given an array of vertices and array of indices to look
  * up into.
